@@ -1,0 +1,155 @@
+// Prisma Schema for Personal Finance Tracker
+// Database: PostgreSQL (Supabase)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum AccountType {
+  BANK
+  CASH
+  EWALLET
+  INVESTMENT
+  OTHER
+}
+
+model User {
+  id               String            @id @default(uuid()) @db.Uuid
+  email            String            @unique @db.VarChar(255)
+  passwordHash     String            @db.VarChar(255)
+  fullName         String            @db.VarChar(150)
+  avatarUrl        String?           @db.Text
+  isActive         Boolean           @default(true)
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+
+  accounts         Account[]
+  categories       Category[]
+  transactions     Transaction[]
+  telegramLinks    TelegramLink[]
+  aiProcessingLogs AIProcessingLog[]
+
+  @@map("users")
+}
+
+model Account {
+  id             String        @id @default(uuid()) @db.Uuid
+  userId         String        @db.Uuid @map("user_id")
+  name           String        @db.VarChar(100)
+  accountType    AccountType   @default(BANK) @map("account_type")
+  initialBalance Decimal       @default(0) @db.Decimal(15, 2) @map("initial_balance")
+  currency       String        @default("IDR") @db.VarChar(10)
+  isArchived     Boolean       @default(false) @map("is_archived")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions   Transaction[]
+
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Category {
+  id           String          @id @default(uuid()) @db.Uuid
+  userId       String?         @db.Uuid @map("user_id")
+  name         String          @db.VarChar(100)
+  type         TransactionType
+  icon         String?         @db.VarChar(50)
+  color        String?         @db.VarChar(30)
+  isDefault    Boolean         @default(false) @map("is_default")
+  createdAt    DateTime        @default(now()) @map("created_at")
+  updatedAt    DateTime        @updatedAt @map("updated_at")
+
+  user         User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@index([userId, type])
+  @@map("categories")
+}
+
+model Transaction {
+  id              String          @id @default(uuid()) @db.Uuid
+  userId          String          @db.Uuid @map("user_id")
+  accountId       String          @db.Uuid @map("account_id")
+  categoryId      String          @db.Uuid @map("category_id")
+  type            TransactionType
+  amount          Decimal         @db.Decimal(15, 2)
+  description     String          @db.VarChar(255)
+  notes           String?         @db.Text
+  transactionDate DateTime        @map("transaction_date")
+  source          String          @default("MOBILE") @db.VarChar(30) // MOBILE, TELEGRAM_BOT, MANUAL
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account         Account         @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  category        Category        @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@index([userId, transactionDate])
+  @@index([userId, type])
+  @@index([accountId])
+  @@index([categoryId])
+  @@map("transactions")
+}
+
+model TelegramLink {
+  id               String   @id @default(uuid()) @db.Uuid
+  userId           String   @db.Uuid @map("user_id")
+  telegramUserId   BigInt   @unique @map("telegram_user_id")
+  telegramChatId   BigInt   @map("telegram_chat_id")
+  telegramUsername String?  @db.VarChar(100) @map("telegram_username")
+  firstName        String?  @db.VarChar(100) @map("first_name")
+  lastName         String?  @db.VarChar(100) @map("last_name")
+  isLinked         Boolean  @default(true) @map("is_linked")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([telegramUserId])
+  @@map("telegram_links")
+}
+
+model TelegramMessage {
+  id          String   @id @default(uuid()) @db.Uuid
+  chatId      BigInt   @map("chat_id")
+  messageId   BigInt   @map("message_id")
+  rawText     String?  @db.Text @map("raw_text")
+  status      String   @default("PROCESSED") @db.VarChar(50) // PROCESSED, FAILED, NEED_CLARIFICATION, IGNORED
+  processedAt DateTime @default(now()) @map("processed_at")
+
+  @@unique([chatId, messageId])
+  @@index([chatId, messageId])
+  @@map("telegram_messages")
+}
+
+model AIProcessingLog {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String?  @db.Uuid @map("user_id")
+  rawInput     String   @db.Text @map("raw_input")
+  model        String   @db.VarChar(100)
+  parsedResult Json?    @map("parsed_result")
+  status       String   @db.VarChar(50) // SUCCESS, FAILED, NEED_CLARIFICATION
+  errorMessage String?  @db.Text @map("error_message")
+  latencyMs    Int?     @map("latency_ms")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@map("ai_processing_logs")
+}
+

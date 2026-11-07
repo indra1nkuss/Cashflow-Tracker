@@ -1,0 +1,27 @@
+{
+  "name": "personal-finance-tracker-monorepo",
+  "version": "1.0.0",
+  "description": "Personal Finance Tracker - Monorepo with Express backend, Supabase/PostgreSQL, Groq AI, Telegram Bot, and Flutter mobile app",
+  "private": true,
+  "scripts": {
+    "dev:backend": "npm --prefix backend run dev",
+    "build:backend": "npm --prefix backend run build",
+    "start:backend": "npm --prefix backend start",
+    "prisma:generate": "npm --prefix backend run prisma:generate",
+    "prisma:seed": "npm --prefix backend run prisma:seed",
+    "lint:backend": "npm --prefix backend run lint"
+  },
+  "keywords": [
+    "personal-finance",
+    "flutter",
+    "express",
+    "typescript",
+    "prisma",
+    "groq-ai",
+    "telegram-bot",
+    "supabase"
+  ],
+  "author": "",
+  "license": "ISC"
+}
+
