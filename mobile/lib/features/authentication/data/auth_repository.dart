@@ -112,3 +112,4 @@ class AuthRepository {
     await _storage.write(key: kUserKey, value: jsonEncode(user.toJson()));
   }
 }
+

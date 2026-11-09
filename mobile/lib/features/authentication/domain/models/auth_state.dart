@@ -48,3 +48,4 @@ class AuthState {
   factory AuthState.error(String message) =>
       AuthState(status: AuthStatus.error, errorMessage: message);
 }
+
