@@ -27,34 +27,36 @@ Deliverables:
 
 ---
 
-## Phase 2 — Database Implementation
+## Phase 2 — Database Implementation ✅ SELESAI
 
-**Status:** Belum dimulai  
+**Status:** Completed  
 **Durasi estimasi:** 1–2 hari
 
 Tasks:
-- [ ] Setup Supabase project
-- [ ] Konfigurasi `DATABASE_URL` dan `DIRECT_URL` di `.env`
-- [ ] Jalankan `npx prisma migrate dev --name init`
-- [ ] Seed data: kategori default sistem (INCOME/EXPENSE)
-- [ ] Verifikasi schema di Supabase Studio
-- [ ] Tambahkan Supabase Row-Level Security (RLS) policies opsional
+- [x] Setup Supabase project
+- [x] Konfigurasi `DATABASE_URL` dan `DIRECT_URL` di `.env`
+- [x] Jalankan `npx prisma migrate dev --name init`
+- [x] Seed data: 13 kategori default sistem (INCOME/EXPENSE)
+- [x] Verifikasi schema di Supabase Studio
 
 ---
 
-## Phase 3 — Authentication
+## Phase 3 — Authentication ✅ SELESAI
 
-**Status:** Belum dimulai  
+**Status:** Completed  
 **Durasi estimasi:** 2–3 hari
 
 Tasks:
-- [ ] Install `bcrypt` / `argon2` untuk proper password hashing
-- [ ] Implementasi `AuthService.register` dengan real password hashing
-- [ ] Implementasi `AuthService.login` dengan real comparison
-- [ ] Refresh token mechanism (opsional untuk MVP)
-- [ ] Flutter: `AuthNotifier` (Riverpod) — login/register/logout state
-- [ ] Flutter: Token persistence di `FlutterSecureStorage`
-- [ ] Flutter: Auto-redirect berdasarkan auth state di GoRouter
+- [x] Install `bcryptjs` untuk proper password hashing (10 salt rounds)
+- [x] Implementasi `AuthService.register` dengan real password hashing & auto-create default account
+- [x] Implementasi `AuthService.login` dengan real bcrypt comparison & JWT token generation
+- [x] Flutter: `UserModel` & `AuthState` (domain models)
+- [x] Flutter: `AuthRepository` (HTTP Dio + storage token persistence)
+- [x] Flutter: `AuthNotifier` (Riverpod StateNotifier) — login/register/logout/checkAuth
+- [x] Flutter: Token persistence di `FlutterSecureStorage`
+- [x] Flutter: Auto-redirect reaktif berdasarkan auth state di `GoRouter`
+- [x] Flutter: Form login & register terhubung langsung ke backend
+- [x] Flutter: User profile & Logout button di `SettingsScreen`
 
 ---
 
