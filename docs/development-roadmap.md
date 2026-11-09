@@ -60,34 +60,39 @@ Tasks:
 
 ---
 
-## Phase 4 — Transaction CRUD
+## Phase 4 — Transaction CRUD ✅ SELESAI
 
-**Status:** Belum dimulai  
+**Status:** Completed  
 **Durasi estimasi:** 3–4 hari
 
 Tasks:
-- [ ] Backend: Verifikasi semua CRUD endpoints transactions berjalan
-- [ ] Backend: Verifikasi CRUD accounts & categories
-- [ ] Flutter: `AccountsNotifier`, `CategoriesNotifier`, `TransactionsNotifier` (Riverpod)
-- [ ] Flutter: Layar daftar transaksi dengan pagination
-- [ ] Flutter: Form tambah transaksi (pilih akun, kategori, nominal, tanggal)
-- [ ] Flutter: Konfirmasi hapus transaksi
-- [ ] Flutter: Filter transaksi (bulan, jenis, akun)
+- [x] Backend: Verifikasi semua CRUD endpoints transactions berjalan
+- [x] Backend: Verifikasi CRUD accounts & categories
+- [x] Flutter: `AccountModel`, `CategoryModel`, `TransactionModel` (domain models)
+- [x] Flutter: `AccountsRepository`, `CategoriesRepository`, `TransactionsRepository` (data layer)
+- [x] Flutter: `AccountsNotifier`, `CategoriesNotifier`, `TransactionsNotifier` (Riverpod AsyncNotifier)
+- [x] Flutter: Layar daftar transaksi dengan filter (Semua / Pengeluaran / Pemasukan)
+- [x] Flutter: Form tambah transaksi lengkap (tipe, nominal, akun, kategori, tanggal, catatan)
+- [x] Flutter: Konfirmasi dialog hapus transaksi & auto-update saldo
+- [x] Flutter: Layar Akun dengan saldo real-time & modal tambah akun
+- [x] Flutter: Layar Kelola Kategori (TabBar Pengeluaran vs Pemasukan) & modal tambah kategori
 
 ---
 
-## Phase 5 — Dashboard
+## Phase 5 — Dashboard ✅ SELESAI
 
-**Status:** Belum dimulai  
+**Status:** Completed  
 **Durasi estimasi:** 2–3 hari
 
 Tasks:
-- [ ] Backend: Verifikasi `/api/dashboard/summary` akurat
-- [ ] Flutter: Kartu total saldo (kalkulasi real-time dari accounts)
-- [ ] Flutter: Kartu pemasukan & pengeluaran bulan ini
-- [ ] Flutter: Daftar 5 transaksi terbaru
-- [ ] Flutter: Navigasi ke detail akun dan transaksi
-- [ ] Flutter: Pull-to-refresh
+- [x] Backend: Endpoint `/api/dashboard/summary` (total balance, monthly income/expense, 5 recent transactions)
+- [x] Flutter: `DashboardSummaryModel` & `DashboardRepository`
+- [x] Flutter: `DashboardNotifier` (Riverpod)
+- [x] Flutter: Kartu total saldo (kalkulasi konsisten dari saldo awal + pemasukan - pengeluaran)
+- [x] Flutter: Kartu ringkasan Pemasukan & Pengeluaran bulan berjalan
+- [x] Flutter: List horizontal akun & dompet
+- [x] Flutter: Daftar 5 transaksi terbaru dengan icon & warna semantik
+- [x] Flutter: Pull-to-refresh & Floating Action Button ke form transaksi
 
 ---
 
