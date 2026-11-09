@@ -297,3 +297,4 @@ class _AiTransactionDialogState extends ConsumerState<AiTransactionDialog> {
     );
   }
 }
+
