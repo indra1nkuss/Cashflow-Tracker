@@ -1,8 +1,21 @@
+import 'package:flutter/foundation.dart';
+
 // API & Network
-const String kApiBaseUrl = String.fromEnvironment(
-  'API_BASE_URL',
-  defaultValue: 'http://10.0.2.2:5000/api',
-);
+String get kApiBaseUrl {
+  const envUrl = String.fromEnvironment('API_BASE_URL');
+  if (envUrl.isNotEmpty) return envUrl;
+
+  // On Web (Chrome) and Desktop (Windows/macOS/Linux), localhost is correct
+  if (kIsWeb ||
+      defaultTargetPlatform == TargetPlatform.windows ||
+      defaultTargetPlatform == TargetPlatform.macOS ||
+      defaultTargetPlatform == TargetPlatform.linux) {
+    return 'http://localhost:5000/api';
+  }
+
+  // On Android emulator, 10.0.2.2 points to host localhost
+  return 'http://10.0.2.2:5000/api';
+}
 const Duration kConnectTimeout = Duration(seconds: 15);
 const Duration kReceiveTimeout = Duration(seconds: 30);
 

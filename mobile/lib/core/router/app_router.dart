@@ -54,22 +54,26 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final authState = ref.read(authNotifierProvider);
       final location = state.matchedLocation;
 
-      // While splash is actively initializing
-      if (authState.isInitial) {
+      // While splash screen is checking initial auth state, stay on splash
+      if (authState.isInitial || authState.isLoading) {
         return null;
       }
 
-      final isAuthRoute = location == AppRoutes.login ||
-          location == AppRoutes.register ||
-          location == AppRoutes.splash;
+      final isSplash = location == AppRoutes.splash;
+      final isAuthForm = location == AppRoutes.login || location == AppRoutes.register;
 
-      // If user is not authenticated and trying to access private page -> go to login
-      if (!authState.isAuthenticated && !isAuthRoute) {
-        return AppRoutes.login;
+      // If user is not authenticated:
+      // Redirect to login if on splash or any private page
+      if (!authState.isAuthenticated) {
+        if (isSplash || !isAuthForm) {
+          return AppRoutes.login;
+        }
+        return null;
       }
 
-      // If user is already authenticated and is on login/register/splash -> go to dashboard
-      if (authState.isAuthenticated && isAuthRoute) {
+      // If user is already authenticated:
+      // Redirect to dashboard if on splash, login, or register
+      if (authState.isAuthenticated && (isSplash || isAuthForm)) {
         return AppRoutes.dashboard;
       }
 
