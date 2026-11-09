@@ -4,17 +4,17 @@ class AppTheme {
   AppTheme._();
 
   // Brand Colors
-  static const Color _primaryColor = Color(0xFF2563EB);     // Blue 600
-  static const Color _secondaryColor = Color(0xFF7C3AED);   // Violet 600
-  static const Color _incomeColor = Color(0xFF16A34A);      // Green 600
-  static const Color _expenseColor = Color(0xFFDC2626);     // Red 600
-  static const Color _warningColor = Color(0xFFF59E0B);     // Amber 500
+  static const Color primaryColor = Color(0xFF2563EB);     // Blue 600
+  static const Color secondaryColor = Color(0xFF7C3AED);   // Violet 600
+  static const Color incomeColor = Color(0xFF16A34A);      // Green 600
+  static const Color expenseColor = Color(0xFFDC2626);     // Red 600
+  static const Color warningColor = Color(0xFFF59E0B);     // Amber 500
 
   // Semantic color extensions accessible via Theme.of(context).extension<AppColors>()
   static const AppColors _lightColors = AppColors(
-    income: _incomeColor,
-    expense: _expenseColor,
-    warning: _warningColor,
+    income: incomeColor,
+    expense: expenseColor,
+    warning: warningColor,
   );
 
   static const AppColors _darkColors = AppColors(
@@ -26,7 +26,7 @@ class AppTheme {
   static ThemeData get lightTheme => ThemeData(
         useMaterial3: true,
         brightness: Brightness.light,
-        colorSchemeSeed: _primaryColor,
+        colorSchemeSeed: primaryColor,
         fontFamily: 'Inter',
         extensions: const [_lightColors],
         appBarTheme: const AppBarTheme(
@@ -34,7 +34,7 @@ class AppTheme {
           elevation: 0,
           scrolledUnderElevation: 1,
         ),
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),

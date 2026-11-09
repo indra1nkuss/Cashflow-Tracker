@@ -15,10 +15,10 @@ class TelegramLinkScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Icon(
+            const Icon(
               Icons.send_rounded,
               size: 72,
-              color: const Color(0xFF2AABEE), // Telegram brand color
+              color: Color(0xFF2AABEE), // Telegram brand color
             ),
             const SizedBox(height: 20),
             Text(

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../../../core/constants/app_constants.dart';
-import '../../../../core/router/app_router.dart';
+import '../providers/auth_provider.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -27,22 +25,18 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     );
     _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
-    _checkAuthAndNavigate();
+
+    // Trigger auth check after animation starts
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAuth();
+    });
   }
 
-  Future<void> _checkAuthAndNavigate() async {
-    await Future.delayed(const Duration(seconds: 2));
+  Future<void> _checkAuth() async {
+    // Add small delay for branding presentation
+    await Future.delayed(const Duration(milliseconds: 1200));
     if (!mounted) return;
-
-    const storage = FlutterSecureStorage();
-    final token = await storage.read(key: kTokenKey);
-
-    if (!mounted) return;
-    if (token != null && token.isNotEmpty) {
-      context.go(AppRoutes.dashboard);
-    } else {
-      context.go(AppRoutes.login);
-    }
+    await ref.read(authNotifierProvider.notifier).checkAuthStatus();
   }
 
   @override
@@ -68,6 +62,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.15),
+                      blurRadius: 15,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
                 ),
                 child: Icon(
                   Icons.account_balance_wallet_rounded,
@@ -81,17 +82,25 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                 style: theme.textTheme.headlineSmall?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
+                  letterSpacing: -0.5,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Catat keuanganmu dengan cerdas',
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.white.withValues(alpha: 0.85),
                 ),
               ),
               const SizedBox(height: 48),
-              const CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+              const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2.5,
+                ),
+              ),
             ],
           ),
         ),
@@ -99,4 +108,3 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     );
   }
 }
-

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import '../constants/app_constants.dart';
+import '../../features/authentication/presentation/providers/auth_provider.dart';
 import '../../features/authentication/presentation/pages/splash_screen.dart';
 import '../../features/authentication/presentation/pages/login_screen.dart';
 import '../../features/authentication/presentation/pages/register_screen.dart';
@@ -17,7 +16,6 @@ import '../../features/settings/presentation/pages/settings_screen.dart';
 import '../../features/telegram/presentation/pages/telegram_link_screen.dart';
 import '../../shared/widgets/main_scaffold.dart';
 
-// Route names
 class AppRoutes {
   AppRoutes._();
   static const String splash = '/';
@@ -33,21 +31,46 @@ class AppRoutes {
   static const String telegramLink = '/telegram-link';
 }
 
+class RouterListenable extends ChangeNotifier {
+  RouterListenable(Ref ref) {
+    ref.listen(authNotifierProvider, (_, __) {
+      notifyListeners();
+    });
+  }
+}
+
+final routerListenableProvider = Provider<RouterListenable>((ref) {
+  return RouterListenable(ref);
+});
+
 final appRouterProvider = Provider<GoRouter>((ref) {
+  final refreshListenable = ref.watch(routerListenableProvider);
+
   return GoRouter(
     initialLocation: AppRoutes.splash,
-    debugLogDiagnostics: true,
-    redirect: (BuildContext context, GoRouterState state) async {
-      const storage = FlutterSecureStorage();
-      final token = await storage.read(key: kTokenKey);
-      final isAuthenticated = token != null && token.isNotEmpty;
+    refreshListenable: refreshListenable,
+    debugLogDiagnostics: false,
+    redirect: (BuildContext context, GoRouterState state) {
+      final authState = ref.read(authNotifierProvider);
+      final location = state.matchedLocation;
 
-      final isAuthRoute = state.matchedLocation == AppRoutes.login ||
-          state.matchedLocation == AppRoutes.register ||
-          state.matchedLocation == AppRoutes.splash;
+      // While splash is actively initializing
+      if (authState.isInitial) {
+        return null;
+      }
 
-      if (!isAuthenticated && !isAuthRoute) {
+      final isAuthRoute = location == AppRoutes.login ||
+          location == AppRoutes.register ||
+          location == AppRoutes.splash;
+
+      // If user is not authenticated and trying to access private page -> go to login
+      if (!authState.isAuthenticated && !isAuthRoute) {
         return AppRoutes.login;
+      }
+
+      // If user is already authenticated and is on login/register/splash -> go to dashboard
+      if (authState.isAuthenticated && isAuthRoute) {
+        return AppRoutes.dashboard;
       }
 
       return null;
@@ -110,4 +133,3 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     ),
   );
 });
-

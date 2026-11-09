@@ -19,18 +19,32 @@ export class AuthService {
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(input.password, salt);
 
-    const user = await prisma.user.create({
-      data: {
-        email: input.email,
-        passwordHash,
-        fullName: input.fullName,
-      },
-      select: {
-        id: true,
-        email: true,
-        fullName: true,
-        createdAt: true,
-      },
+    const { user } = await prisma.$transaction(async (tx) => {
+      const newUser = await tx.user.create({
+        data: {
+          email: input.email,
+          passwordHash,
+          fullName: input.fullName,
+        },
+        select: {
+          id: true,
+          email: true,
+          fullName: true,
+          createdAt: true,
+        },
+      });
+
+      // Automatically create a default account for the new user
+      await tx.account.create({
+        data: {
+          userId: newUser.id,
+          name: 'Dompet Utama',
+          accountType: 'CASH',
+          initialBalance: 0,
+        },
+      });
+
+      return { user: newUser };
     });
 
     const token = jwt.sign(

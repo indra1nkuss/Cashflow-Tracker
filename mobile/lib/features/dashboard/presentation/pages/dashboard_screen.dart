@@ -35,7 +35,7 @@ class DashboardScreen extends StatelessWidget {
                   Text(
                     'Total Saldo',
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withValues(alpha: 0.8),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -47,20 +47,20 @@ class DashboardScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Row(
+                  const Row(
                     children: [
                       _SummaryChip(
                         icon: Icons.trending_up_rounded,
                         label: 'Pemasukan',
                         value: 'Rp 0',
-                        color: const Color(0xFF4ADE80),
+                        color: Color(0xFF4ADE80),
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12),
                       _SummaryChip(
                         icon: Icons.trending_down_rounded,
                         label: 'Pengeluaran',
                         value: 'Rp 0',
-                        color: const Color(0xFFF87171),
+                        color: Color(0xFFF87171),
                       ),
                     ],
                   ),
@@ -134,7 +134,7 @@ class _SummaryChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.1),
+          color: Colors.white.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
