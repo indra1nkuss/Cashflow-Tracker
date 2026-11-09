@@ -48,3 +48,4 @@ final accountsNotifierProvider =
     AsyncNotifierProvider<AccountsNotifier, List<AccountModel>>(() {
   return AccountsNotifier();
 });
+

@@ -29,7 +29,26 @@ export class TelegramController {
       next(error);
     }
   }
+
+  public async generateLinkCode(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (!req.user) throw new UnauthorizedError();
+      const result = telegramService.generateLinkCode(req.user.userId);
+      ApiResponse.success(res, result, 'Link code generated successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public async unlink(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (!req.user) throw new UnauthorizedError();
+      await telegramService.unlink(req.user.userId);
+      ApiResponse.success(res, { success: true }, 'Telegram account unlinked');
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export const telegramController = new TelegramController();
-

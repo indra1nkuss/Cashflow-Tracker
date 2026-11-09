@@ -8,6 +8,7 @@ import '../../../../shared/widgets/app_error_widget.dart';
 import '../../../../shared/widgets/app_loading_widget.dart';
 import '../../domain/models/transaction_model.dart';
 import '../providers/transactions_provider.dart';
+import '../widgets/ai_transaction_dialog.dart';
 
 class TransactionsScreen extends ConsumerWidget {
   const TransactionsScreen({super.key});
@@ -57,6 +58,11 @@ class TransactionsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Daftar Transaksi'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.auto_awesome_rounded, color: Colors.purple),
+            tooltip: 'Catat via AI',
+            onPressed: () => AiTransactionDialog.show(context),
+          ),
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
             onPressed: () => ref.read(transactionsNotifierProvider.notifier).refresh(),

@@ -50,3 +50,4 @@ final categoriesNotifierProvider =
     AsyncNotifierProvider<CategoriesNotifier, List<CategoryModel>>(() {
   return CategoriesNotifier();
 });
+

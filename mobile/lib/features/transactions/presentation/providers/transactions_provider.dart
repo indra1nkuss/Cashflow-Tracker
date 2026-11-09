@@ -113,3 +113,4 @@ final transactionsNotifierProvider =
     AsyncNotifierProvider<TransactionsNotifier, List<TransactionModel>>(() {
   return TransactionsNotifier();
 });
+

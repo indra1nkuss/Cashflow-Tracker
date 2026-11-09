@@ -28,3 +28,4 @@ final dashboardNotifierProvider =
     AsyncNotifierProvider<DashboardNotifier, DashboardSummaryModel>(() {
   return DashboardNotifier();
 });
+
