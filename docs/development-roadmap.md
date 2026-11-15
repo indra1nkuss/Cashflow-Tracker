@@ -109,6 +109,8 @@ Tasks:
 - [x] Flutter: Layar Telegram Link (`/telegram-link`) fungsional dengan copyable code & status
 - [x] Perlindungan pesan duplikat via idempotency check `(chat_id, message_id)`
 - [x] Endpoint pemutusan tautan `DELETE /api/telegram/unlink`
+- [x] Perintah laporan Telegram: `/laporan hari`, `/laporan minggu`, `/laporan bulan`, `/laporan tahun`
+- [x] Perintah pembatalan transaksi terakhir via Telegram: `/batal` / `/undo`
 
 ---
 

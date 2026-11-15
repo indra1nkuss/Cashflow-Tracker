@@ -7,7 +7,13 @@ import 'core/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting('id_ID', null);
+  try {
+    await initializeDateFormatting('id_ID', null);
+    await initializeDateFormatting('id', null);
+    await initializeDateFormatting('en_US', null);
+  } catch (e) {
+    debugPrint('Gagal inisialisasi locale formatting: $e');
+  }
   runApp(
     const ProviderScope(
       child: PersonalFinanceTrackerApp(),

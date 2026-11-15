@@ -2,6 +2,7 @@ import { Decimal } from '@prisma/client/runtime/library';
 import { prisma } from '../../config/database.js';
 import { telegramBotService } from '../../services/telegram-bot.service.js';
 import { aiParserService } from '../ai-parser/ai-parser.service.js';
+import { reportsService, ReportPeriod, ReportSummaryResult } from '../reports/reports.service.js';
 import { TelegramWebhookPayload } from './telegram.validation.js';
 import { Logger } from '../../common/utils/logger.js';
 
@@ -169,7 +170,13 @@ export class TelegramService {
         `• <i>"Membeli bensin Rp50.000"</i>\n` +
         `• <i>"Makan siang di warteg 25rb"</i>\n` +
         `• <i>"Diterima gaji Rp5.000.000"</i>\n\n` +
-        `Ketik <code>/status</code> untuk melihat akun yang terhubung.`
+        `Perintah bantuan:\n` +
+        `• <code>/laporan</code> - Laporan keuangan bulan ini\n` +
+        `• <code>/laporan hari</code> - Laporan keuangan hari ini\n` +
+        `• <code>/laporan minggu</code> - Laporan keuangan minggu ini\n` +
+        `• <code>/laporan tahun</code> - Laporan keuangan tahun ini\n` +
+        `• <code>/batal</code> - Membatalkan transaksi terakhir jika salah catat\n` +
+        `• <code>/status</code> - Melihat akun yang sedang terhubung`
       );
       await this.updateMessageStatus(chatId, messageId, 'PROCESSED');
       return;
@@ -185,7 +192,89 @@ export class TelegramService {
       return;
     }
 
-    // 4. Parse message with AI parser
+    if (text === '/batal' || text === '/undo') {
+      const lastTx = await prisma.transaction.findFirst({
+        where: { userId: link.userId, source: 'TELEGRAM_BOT' },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      if (!lastTx) {
+        await telegramBotService.sendMessage(
+          msg.chat.id,
+          'ℹ️ Tidak ada transaksi via Telegram yang dapat dibatalkan saat ini.'
+        );
+        await this.updateMessageStatus(chatId, messageId, 'PROCESSED');
+        return;
+      }
+
+      await prisma.transaction.delete({
+        where: { id: lastTx.id },
+      });
+
+      const formattedAmount = new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        maximumFractionDigits: 0,
+      }).format(Number(lastTx.amount));
+
+      await telegramBotService.sendMessage(
+        msg.chat.id,
+        `🗑️ <b>Transaksi Terakhir Dibatalkan!</b>\n\n` +
+        `• <b>Keterangan:</b> ${lastTx.description}\n` +
+        `• <b>Nominal:</b> ${formattedAmount}\n\n` +
+        `Transaksi telah dihapus dari pencatatan keuangan Anda.`
+      );
+      await this.updateMessageStatus(chatId, messageId, 'PROCESSED');
+      return;
+    }
+
+    // 4. Handle Report commands: /laporan, /rekap, /report, etc.
+    const lowerText = text.toLowerCase().trim();
+    const isReportCommand =
+      lowerText.startsWith('/laporan') ||
+      lowerText.startsWith('/rekap') ||
+      lowerText.startsWith('/report') ||
+      lowerText === 'laporan' ||
+      lowerText === 'rekap';
+
+    if (isReportCommand) {
+      let period: ReportPeriod = 'month';
+
+      if (
+        lowerText.includes('hari') ||
+        lowerText.includes('today') ||
+        lowerText === '/laporanhari'
+      ) {
+        period = 'day';
+      } else if (
+        lowerText.includes('minggu') ||
+        lowerText.includes('week') ||
+        lowerText === '/laporanminggu'
+      ) {
+        period = 'week';
+      } else if (
+        lowerText.includes('tahun') ||
+        lowerText.includes('year') ||
+        lowerText === '/laporantahun'
+      ) {
+        period = 'year';
+      } else if (
+        lowerText.includes('bulan') ||
+        lowerText.includes('month') ||
+        lowerText === '/laporanbulan'
+      ) {
+        period = 'month';
+      }
+
+      const report = await reportsService.getPeriodSummary(link.userId, period);
+      const reportMessage = this.formatReportMessage(report, link.user.fullName);
+
+      await telegramBotService.sendMessage(msg.chat.id, reportMessage);
+      await this.updateMessageStatus(chatId, messageId, 'PROCESSED');
+      return;
+    }
+
+    // 5. Parse message with AI parser
     const parsed = await aiParserService.parseTransactionMessage(text, link.userId);
 
     // If missing nominal or needs clarification
@@ -293,6 +382,58 @@ export class TelegramService {
       where: { userId },
       data: { isLinked: false },
     });
+  }
+
+  private formatReportMessage(report: ReportSummaryResult, userName: string): string {
+    const fmt = (num: number) =>
+      new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        maximumFractionDigits: 0,
+      }).format(num);
+
+    const netSign = report.netCashflow > 0 ? '+' : '';
+    const netEmoji = report.netCashflow >= 0 ? '📈' : '📉';
+
+    let msg = `📊 <b>LAPORAN KEUANGAN</b>\n`;
+    msg += `🗓️ <b>Periode:</b> ${report.periodLabel}\n`;
+    msg += `👤 <b>Pengguna:</b> ${userName}\n`;
+    msg += `────────────────────────────\n`;
+    msg += `💰 <b>Pemasukan:</b>  ${fmt(report.totalIncome)}\n`;
+    msg += `💸 <b>Pengeluaran:</b> ${fmt(report.totalExpense)}\n`;
+    msg += `${netEmoji} <b>Selisih (Net):</b> ${netSign}${fmt(report.netCashflow)}\n`;
+    msg += `📝 <b>Total Transaksi:</b> ${report.transactionCount} catatan\n`;
+    msg += `────────────────────────────\n`;
+
+    if (report.expenseCategories.length > 0) {
+      msg += `\n🔴 <b>Rincian Pengeluaran:</b>\n`;
+      for (const cat of report.expenseCategories) {
+        const pct =
+          report.totalExpense > 0
+            ? ((cat.total / report.totalExpense) * 100).toFixed(0)
+            : '0';
+        msg += `• ${cat.name}: <b>${fmt(cat.total)}</b> (${pct}%)\n`;
+      }
+    }
+
+    if (report.incomeCategories.length > 0) {
+      msg += `\n🟢 <b>Rincian Pemasukan:</b>\n`;
+      for (const cat of report.incomeCategories) {
+        msg += `• ${cat.name}: <b>${fmt(cat.total)}</b>\n`;
+      }
+    }
+
+    if (report.transactionCount === 0) {
+      msg += `\n<i>Belum ada transaksi tercatat pada periode ini.</i>\n`;
+    }
+
+    msg += `\n💡 <i>Pilihan perintah laporan:</i>\n`;
+    msg += `• <code>/laporan hari</code> (Hari Ini)\n`;
+    msg += `• <code>/laporan minggu</code> (Minggu Ini)\n`;
+    msg += `• <code>/laporan bulan</code> (Bulan Ini)\n`;
+    msg += `• <code>/laporan tahun</code> (Tahun Ini)\n`;
+
+    return msg;
   }
 }
 

@@ -47,3 +47,4 @@ final reportsNotifierProvider =
     AsyncNotifierProvider<ReportsNotifier, MonthlyReportModel>(() {
   return ReportsNotifier();
 });
+

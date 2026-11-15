@@ -5,16 +5,11 @@ String get kApiBaseUrl {
   const envUrl = String.fromEnvironment('API_BASE_URL');
   if (envUrl.isNotEmpty) return envUrl;
 
-  // On Web (Chrome) and Desktop (Windows/macOS/Linux), localhost is correct
-  if (kIsWeb ||
-      defaultTargetPlatform == TargetPlatform.windows ||
-      defaultTargetPlatform == TargetPlatform.macOS ||
-      defaultTargetPlatform == TargetPlatform.linux) {
-    return 'http://localhost:5000/api';
-  }
-
-  // On Android emulator, 10.0.2.2 points to host localhost
-  return 'http://10.0.2.2:5000/api';
+  // Default to localhost:5000 for:
+  // - Web (Chrome / Edge)
+  // - Desktop (Windows / macOS / Linux)
+  // - Android physical devices connected via USB (adb reverse tcp:5000 tcp:5000)
+  return 'http://localhost:5000/api';
 }
 const Duration kConnectTimeout = Duration(seconds: 15);
 const Duration kReceiveTimeout = Duration(seconds: 30);

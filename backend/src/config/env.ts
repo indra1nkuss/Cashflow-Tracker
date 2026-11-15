@@ -10,7 +10,7 @@ const envSchema = z.object({
   DIRECT_URL: z.string().optional(),
   JWT_SECRET: z.string().min(8, { message: 'JWT_SECRET must be at least 8 characters long' }).default('default_dev_jwt_secret_change_me_in_production'),
   GROQ_API_KEY: z.string().optional().default(''),
-  GROQ_MODEL: z.string().default('llama-3.3-70b-versatile'),
+  GROQ_MODEL: z.string().default('openai/gpt-oss-20b'),
   TELEGRAM_BOT_TOKEN: z.string().optional().default(''),
   TELEGRAM_WEBHOOK_SECRET: z.string().optional().default(''),
   APP_TIMEZONE: z.string().default('Asia/Jakarta'),

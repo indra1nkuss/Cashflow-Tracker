@@ -58,25 +58,17 @@ class DateFormatter {
   ];
 
   static String formatDate(DateTime date) {
-    try {
-      return DateFormat('dd/MM/yyyy', 'id_ID').format(date);
-    } catch (_) {
-      final d = date.day.toString().padLeft(2, '0');
-      final m = date.month.toString().padLeft(2, '0');
-      return '$d/$m/${date.year}';
-    }
+    final d = date.day.toString().padLeft(2, '0');
+    final m = date.month.toString().padLeft(2, '0');
+    return '$d/$m/${date.year}';
   }
 
   static String formatDateTime(DateTime date) {
-    try {
-      return DateFormat('dd/MM/yyyy HH:mm', 'id_ID').format(date);
-    } catch (_) {
-      final d = date.day.toString().padLeft(2, '0');
-      final m = date.month.toString().padLeft(2, '0');
-      final h = date.hour.toString().padLeft(2, '0');
-      final min = date.minute.toString().padLeft(2, '0');
-      return '$d/$m/${date.year} $h:$min';
-    }
+    final d = date.day.toString().padLeft(2, '0');
+    final m = date.month.toString().padLeft(2, '0');
+    final h = date.hour.toString().padLeft(2, '0');
+    final min = date.minute.toString().padLeft(2, '0');
+    return '$d/$m/${date.year} $h:$min';
   }
 
   static String formatMonthYear(DateTime date) {

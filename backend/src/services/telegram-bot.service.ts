@@ -24,6 +24,8 @@ export interface TelegramUpdate {
 
 export class TelegramBotService {
   private readonly botToken: string;
+  private isPolling = false;
+  private lastUpdateId = 0;
 
   constructor() {
     this.botToken = env.TELEGRAM_BOT_TOKEN;
@@ -36,6 +38,48 @@ export class TelegramBotService {
 
   public isConfigured(): boolean {
     return Boolean(this.botToken && this.botToken.trim() !== '');
+  }
+
+  /**
+   * Start long polling for local development when webhook is not active.
+   */
+  public async startPolling(handler: (update: any) => Promise<void>): Promise<void> {
+    if (!this.isConfigured() || this.isPolling) return;
+    this.isPolling = true;
+    Logger.info('🤖 Telegram Bot long polling started for local development');
+
+    const poll = async () => {
+      while (this.isPolling) {
+        try {
+          const url = `https://api.telegram.org/bot${this.botToken}/getUpdates?offset=${this.lastUpdateId + 1}&timeout=15`;
+          const res = await fetch(url);
+          if (res.ok) {
+            const data = (await res.json()) as { ok: boolean; result: any[] };
+            if (data.ok && Array.isArray(data.result)) {
+              for (const update of data.result) {
+                this.lastUpdateId = update.update_id;
+                try {
+                  await handler(update);
+                } catch (err) {
+                  Logger.error('Error handling polled Telegram update:', err);
+                }
+              }
+            }
+          }
+        } catch (error) {
+          if (this.isPolling) {
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+          }
+        }
+      }
+    };
+
+    void poll();
+  }
+
+  public stopPolling(): void {
+    this.isPolling = false;
+    Logger.info('Telegram Bot polling stopped');
   }
 
   /**

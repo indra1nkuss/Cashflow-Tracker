@@ -152,3 +152,4 @@ describe('Personal Finance Tracker - API Integration Tests', () => {
     assert.equal(res2.status, 200);
   });
 });
+

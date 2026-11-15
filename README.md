@@ -171,4 +171,5 @@ Salin `backend/.env.example` ke `backend/.env` dan isi semua variabel:
 - [`docs/api-documentation.md`](docs/api-documentation.md) — Daftar endpoint API
 - [`docs/development-roadmap.md`](docs/development-roadmap.md) — Roadmap pengembangan
 - [`docs/telegram-integration.md`](docs/telegram-integration.md) — Alur integrasi Telegram
+- [`docs/free-hosting-guide.md`](docs/free-hosting-guide.md) — Panduan hosting online 100% gratis
 
