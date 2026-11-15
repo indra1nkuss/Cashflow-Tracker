@@ -3,11 +3,8 @@ String get kApiBaseUrl {
   const envUrl = String.fromEnvironment('API_BASE_URL');
   if (envUrl.isNotEmpty) return envUrl;
 
-  // Default to localhost:5000 for:
-  // - Web (Chrome / Edge)
-  // - Desktop (Windows / macOS / Linux)
-  // - Android physical devices connected via USB (adb reverse tcp:5000 tcp:5000)
-  return 'http://localhost:5000/api';
+  // Production live backend on Vercel
+  return 'https://backend-one-phi-62.vercel.app/api';
 }
 const Duration kConnectTimeout = Duration(seconds: 15);
 const Duration kReceiveTimeout = Duration(seconds: 30);
