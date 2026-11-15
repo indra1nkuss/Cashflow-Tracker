@@ -19,10 +19,25 @@ export const createApp = (): Application => {
   app.use(helmet());
   app.use(
     cors({
-      origin:
-        env.NODE_ENV === 'production'
-          ? process.env['ALLOWED_ORIGINS']?.split(',') ?? []
-          : '*',
+      origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, Postman, curl, Telegram)
+        if (!origin) return callback(null, true);
+        
+        const allowedOrigins = process.env['ALLOWED_ORIGINS']
+          ? process.env['ALLOWED_ORIGINS'].split(',').map((o) => o.trim())
+          : ['*'];
+
+        if (
+          allowedOrigins.includes('*') ||
+          allowedOrigins.includes(origin) ||
+          origin.endsWith('.vercel.app') ||
+          origin.includes('localhost')
+        ) {
+          return callback(null, true);
+        }
+
+        return callback(null, true);
+      },
       credentials: true,
     })
   );
