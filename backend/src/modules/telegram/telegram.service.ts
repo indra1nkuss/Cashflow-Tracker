@@ -6,27 +6,23 @@ import { reportsService, ReportPeriod, ReportSummaryResult } from '../reports/re
 import { TelegramWebhookPayload } from './telegram.validation.js';
 import { Logger } from '../../common/utils/logger.js';
 
-interface LinkCodeData {
-  userId: string;
-  expiresAt: number;
-}
-
 export class TelegramService {
-  // Temporary in-memory store for 6-digit pairing codes (valid 10 minutes)
-  private static readonly linkCodes = new Map<string, LinkCodeData>();
-
   /**
-   * Generates a 6-digit linking code for pairing mobile app with Telegram bot
+   * Generates a linking code for pairing mobile app with Telegram bot.
+   * Code is stored in Supabase DB (not in-memory) so it works in serverless.
    */
-  public generateLinkCode(userId: string): { code: string; expiresAt: Date } {
+  public async generateLinkCode(userId: string): Promise<{ code: string; expiresAt: Date }> {
     // Generate random 4-digit number e.g. PFT-7492
     const randomDigits = Math.floor(1000 + Math.random() * 9000).toString();
     const code = `PFT-${randomDigits}`;
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    TelegramService.linkCodes.set(code, {
-      userId,
-      expiresAt: expiresAt.getTime(),
+    // Delete any existing unused codes for this user first (cleanup)
+    await prisma.telegramLinkCode.deleteMany({ where: { userId } });
+
+    // Save the new code to database
+    await prisma.telegramLinkCode.create({
+      data: { code, userId, expiresAt },
     });
 
     Logger.info(`Generated Telegram link code ${code} for user ${userId}`);
@@ -84,9 +80,15 @@ export class TelegramService {
           : null;
 
     if (potentialCode && potentialCode.startsWith('PFT-')) {
-      const codeData = TelegramService.linkCodes.get(potentialCode);
+      // Look up code from database (works in serverless - no in-memory state)
+      const codeData = await prisma.telegramLinkCode.findUnique({
+        where: { code: potentialCode },
+      });
 
-      if (!codeData || Date.now() > codeData.expiresAt) {
+      if (!codeData || new Date() > codeData.expiresAt) {
+        // Cleanup expired code if it exists
+        if (codeData) await prisma.telegramLinkCode.delete({ where: { code: potentialCode } });
+
         await telegramBotService.sendMessage(
           msg.chat.id,
           '❌ <b>Kode tautan tidak valid atau sudah kedaluwarsa.</b>\n\nSilakan buat kode baru melalui menu <i>Pengaturan > Hubungkan Telegram</i> di aplikasi mobile Anda.'
@@ -127,8 +129,8 @@ export class TelegramService {
         },
       });
 
-      // Remove consumed code
-      TelegramService.linkCodes.delete(potentialCode);
+      // Delete consumed code from database
+      await prisma.telegramLinkCode.delete({ where: { code: potentialCode } });
 
       const welcomeMsg =
         `🎉 <b>Selamat, Akun Berhasil Ditautkan!</b>\n\n` +

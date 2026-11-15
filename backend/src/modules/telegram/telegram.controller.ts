@@ -31,7 +31,7 @@ export class TelegramController {
   public async generateLinkCode(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       if (!req.user) throw new UnauthorizedError();
-      const result = telegramService.generateLinkCode(req.user.userId);
+      const result = await telegramService.generateLinkCode(req.user.userId);
       ApiResponse.success(res, result, 'Link code generated successfully');
     } catch (error) {
       next(error);
