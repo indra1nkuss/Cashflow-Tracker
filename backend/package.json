@@ -12,7 +12,8 @@
     "prisma:seed": "prisma db seed",
     "prisma:studio": "prisma studio",
     "test": "tsx --test tests/**/*.test.ts",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "postinstall": "prisma generate"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
