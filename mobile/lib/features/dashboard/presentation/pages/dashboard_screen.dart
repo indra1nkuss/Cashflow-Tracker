@@ -148,14 +148,18 @@ class DashboardScreen extends ConsumerWidget {
                           color: const Color(0xFF78716C),
                         ),
                       ),
-                      trailing: Text(
-                        '${tx.isIncome ? "+" : "-"}${CurrencyFormatter.format(tx.amount)}',
-                        style: TextStyle(
-                          color: tx.isIncome
-                              ? const Color(0xFF10B981)
-                              : const Color(0xFFE11D48),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
+                      trailing: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          '${tx.isIncome ? "+" : "-"}${CurrencyFormatter.format(tx.amount)}',
+                          style: TextStyle(
+                            color: tx.isIncome
+                                ? const Color(0xFF10B981)
+                                : const Color(0xFFE11D48),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
                         ),
                       ),
                     ),
@@ -478,12 +482,16 @@ class DashboardScreen extends ConsumerWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 2),
-                          Text(
-                            CurrencyFormatter.format(acc.balance),
-                            style: const TextStyle(
-                              color: AppTheme.primaryColor,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 13,
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              CurrencyFormatter.format(acc.balance),
+                              style: const TextStyle(
+                                color: AppTheme.primaryColor,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 13,
+                              ),
                             ),
                           ),
                         ],

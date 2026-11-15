@@ -203,6 +203,10 @@ class TransactionsScreen extends ConsumerWidget {
                     itemBuilder: (context, index) {
                       final tx = transactions[index];
                       return Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 12,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(18),
@@ -215,114 +219,139 @@ class TransactionsScreen extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          leading: Container(
-                            width: 44,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: tx.isIncome
-                                  ? LinearGradient(
-                                      colors: [
-                                        const Color(0xFF10B981).withValues(alpha: 0.2),
-                                        const Color(0xFF059669).withValues(alpha: 0.08),
-                                      ],
-                                    )
-                                  : LinearGradient(
-                                      colors: [
-                                        const Color(0xFFE11D48).withValues(alpha: 0.2),
-                                        const Color(0xFFEA580C).withValues(alpha: 0.08),
-                                      ],
-                                    ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // Leading Icon
+                            Container(
+                              width: 42,
+                              height: 42,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: tx.isIncome
+                                    ? LinearGradient(
+                                        colors: [
+                                          const Color(0xFF10B981).withValues(alpha: 0.2),
+                                          const Color(0xFF059669).withValues(alpha: 0.08),
+                                        ],
+                                      )
+                                    : LinearGradient(
+                                        colors: [
+                                          const Color(0xFFE11D48).withValues(alpha: 0.2),
+                                          const Color(0xFFEA580C).withValues(alpha: 0.08),
+                                        ],
+                                      ),
+                              ),
+                              child: Icon(
+                                tx.isIncome
+                                    ? Icons.arrow_downward_rounded
+                                    : Icons.arrow_upward_rounded,
+                                color: tx.isIncome
+                                    ? const Color(0xFF10B981)
+                                    : const Color(0xFFE11D48),
+                                size: 20,
+                              ),
                             ),
-                            child: Icon(
-                              tx.isIncome
-                                  ? Icons.arrow_downward_rounded
-                                  : Icons.arrow_upward_rounded,
-                              color: tx.isIncome
-                                  ? const Color(0xFF10B981)
-                                  : const Color(0xFFE11D48),
-                              size: 22,
-                            ),
-                          ),
-                          title: Text(
-                            tx.description,
-                            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 6),
-                              Row(
+                            const SizedBox(width: 12),
+
+                            // Middle Info (Expanded to prevent any overflow)
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  if (tx.category != null)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 3,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFFFF1F2),
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(color: const Color(0xFFFFE4E6)),
-                                      ),
-                                      child: Text(
-                                        tx.category!.name,
-                                        style: const TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w600,
-                                          color: AppTheme.primaryColor,
+                                  Text(
+                                    tx.description,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 14,
+                                      color: Color(0xFF1C1917),
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Wrap(
+                                    spacing: 6,
+                                    runSpacing: 4,
+                                    crossAxisAlignment: WrapCrossAlignment.center,
+                                    children: [
+                                      if (tx.category != null)
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 7,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFFFF1F2),
+                                            borderRadius: BorderRadius.circular(6),
+                                            border: Border.all(color: const Color(0xFFFFE4E6)),
+                                          ),
+                                          child: Text(
+                                            tx.category!.name,
+                                            style: const TextStyle(
+                                              fontSize: 10.5,
+                                              fontWeight: FontWeight.w600,
+                                              color: AppTheme.primaryColor,
+                                            ),
+                                          ),
                                         ),
-                                      ),
+                                      if (tx.account != null)
+                                        Text(
+                                          tx.account!.name,
+                                          style: theme.textTheme.bodySmall?.copyWith(
+                                            color: const Color(0xFF78716C),
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    DateFormatter.formatDateTime(tx.transactionDate),
+                                    style: const TextStyle(
+                                      fontSize: 10.5,
+                                      color: Color(0xFFA8A29E),
                                     ),
-                                  const SizedBox(width: 8),
-                                  if (tx.account != null)
-                                    Text(
-                                      tx.account!.name,
-                                      style: theme.textTheme.bodySmall?.copyWith(
-                                        color: const Color(0xFF78716C),
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
+                                  ),
                                 ],
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                DateFormatter.formatDateTime(tx.transactionDate),
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  color: Color(0xFFA8A29E),
+                            ),
+                            const SizedBox(width: 10),
+
+                            // Trailing: Amount + Delete button (Stacked vertically)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '${tx.isIncome ? "+" : "-"}${CurrencyFormatter.format(tx.amount)}',
+                                  style: TextStyle(
+                                    color: tx.isIncome
+                                        ? const Color(0xFF10B981)
+                                        : const Color(0xFFE11D48),
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 13.5,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                '${tx.isIncome ? "+" : "-"}${CurrencyFormatter.format(tx.amount)}',
-                                style: TextStyle(
-                                  color: tx.isIncome
-                                      ? const Color(0xFF10B981)
-                                      : const Color(0xFFE11D48),
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 15,
+                                const SizedBox(height: 4),
+                                InkWell(
+                                  onTap: () => _confirmDelete(context, ref, tx),
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    child: const Icon(
+                                      Icons.delete_outline_rounded,
+                                      size: 18,
+                                      color: Color(0xFFA8A29E),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.delete_outline_rounded,
-                                  size: 20,
-                                  color: Color(0xFFA8A29E),
-                                ),
-                                onPressed: () => _confirmDelete(context, ref, tx),
-                              ),
-                            ],
-                          ),
+                              ],
+                            ),
+                          ],
                         ),
                       );
                     },
