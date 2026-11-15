@@ -56,8 +56,8 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> with WidgetsBinding
 
   void _startPeriodicAutoSync() {
     _autoSyncTimer?.cancel();
-    // Silent auto-sync every 6 seconds while user is actively viewing the app
-    _autoSyncTimer = Timer.periodic(const Duration(seconds: 6), (_) {
+    // Silent auto-sync every 3 seconds while user is actively viewing the app
+    _autoSyncTimer = Timer.periodic(const Duration(seconds: 3), (_) {
       if (_isForeground && mounted) {
         _syncAllSilently();
       }

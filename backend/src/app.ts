@@ -15,6 +15,9 @@ export const createApp = (): Application => {
   // Enable 'trust proxy' for cloud reverse proxies (Render, Cloudflare, Fly, Koyeb)
   app.set('trust proxy', 1);
 
+  // Disable ETag to ensure real-time financial data is never cached with 304
+  app.set('etag', false);
+
   // ───────── Security & Parsing ─────────
   app.use(helmet());
   app.use(
@@ -75,6 +78,15 @@ export const createApp = (): Application => {
   // ───────── Telegram Webhook (Exempt from rate limits) ─────────
   app.post('/api/telegram/webhook', (req, res, next) => {
     telegramController.handleWebhook(req, res, next);
+  });
+
+  // ───────── Anti-Cache Middleware for Real-time Financial Data ─────────
+  app.use('/api', (_req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('Surrogate-Control', 'no-store');
+    next();
   });
 
   // ───────── Global Rate Limiter ─────────

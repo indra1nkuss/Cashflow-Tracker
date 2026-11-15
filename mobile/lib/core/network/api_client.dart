@@ -43,6 +43,17 @@ class ApiClient {
         if (token != null) {
           options.headers['Authorization'] = 'Bearer $token';
         }
+        // Force no-cache headers on client side
+        options.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+        options.headers['Pragma'] = 'no-cache';
+
+        // Add cache-busting timestamp on GET requests so Vercel & browsers never cache
+        if (options.method.toUpperCase() == 'GET') {
+          final queryParams = Map<String, dynamic>.from(options.queryParameters);
+          queryParams['_t'] = DateTime.now().millisecondsSinceEpoch;
+          options.queryParameters = queryParams;
+        }
+
         handler.next(options);
       },
       onError: (err, handler) {
