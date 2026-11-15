@@ -33,6 +33,19 @@ export const createApp = (): Application => {
     app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
   }
 
+  // ───────── Root Landing (Browser Friendly) ─────────
+  app.get('/', (_req, res) => {
+    res.status(200).json({
+      success: true,
+      message: 'Personal Finance Tracker API is online and running on Vercel!',
+      endpoints: {
+        health: '/api/health',
+        api: '/api',
+      },
+      version: '1.0.0',
+    });
+  });
+
   // ───────── Health Check (Exempt from rate limits for monitoring) ─────────
   app.get('/api/health', (_req, res) => {
     res.status(200).json({

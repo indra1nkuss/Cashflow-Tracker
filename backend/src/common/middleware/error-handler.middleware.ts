@@ -19,8 +19,7 @@ export const errorHandler = (
   // Unhandled / system errors
   Logger.error(`Unhandled error: ${err.message}`, err.stack);
 
-  const message =
-    env.NODE_ENV === 'production' ? 'Internal server error occurred' : err.message;
+  const message = err.message || 'Internal server error occurred';
 
   ApiResponse.error(
     res,

@@ -12,7 +12,6 @@ export const prisma: PrismaClient =
     log: env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
   });
 
-if (env.NODE_ENV !== 'production') {
-  globalThis.prismaGlobal = prisma;
-}
+// Always preserve client instance on globalThis in serverless environments (Vercel)
+globalThis.prismaGlobal = prisma;
 
