@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../shared/widgets/app_error_widget.dart';
 import '../../../../shared/widgets/app_loading_widget.dart';
+import '../../../../shared/widgets/bubble_background.dart';
 import '../../domain/models/report_model.dart';
 import '../providers/reports_provider.dart';
 
@@ -12,14 +14,14 @@ class ReportsScreen extends ConsumerWidget {
   const ReportsScreen({super.key});
 
   static const List<Color> _chartPalette = [
-    Color(0xFFEF4444),
-    Color(0xFFF59E0B),
-    Color(0xFF3B82F6),
-    Color(0xFF10B981),
-    Color(0xFF8B5CF6),
-    Color(0xFFEC4899),
-    Color(0xFF06B6D4),
-    Color(0xFF6B7280),
+    Color(0xFFE11D48), // Rose Red
+    Color(0xFFF97316), // Sunset Orange
+    Color(0xFFF59E0B), // Warm Amber
+    Color(0xFFFB7185), // Soft Crimson
+    Color(0xFF10B981), // Emerald
+    Color(0xFF6366F1), // Indigo
+    Color(0xFF06B6D4), // Cyan
+    Color(0xFF8B5CF6), // Purple
   ];
 
   @override
@@ -30,7 +32,10 @@ class ReportsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Laporan Keuangan'),
+        title: const Text(
+          'Laporan Keuangan',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
@@ -42,13 +47,25 @@ class ReportsScreen extends ConsumerWidget {
         children: [
           // Month Selector
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            color: theme.colorScheme.surfaceContainerLow,
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFFFFECE5)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.02),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.chevron_left_rounded),
+                  icon: const Icon(Icons.chevron_left_rounded, color: AppTheme.primaryColor),
                   tooltip: 'Bulan Sebelumnya',
                   onPressed: () =>
                       ref.read(reportsNotifierProvider.notifier).previousMonth(),
@@ -56,11 +73,12 @@ class ReportsScreen extends ConsumerWidget {
                 Text(
                   DateFormatter.formatMonthYear(period),
                   style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF1C1917),
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.chevron_right_rounded),
+                  icon: const Icon(Icons.chevron_right_rounded, color: AppTheme.primaryColor),
                   tooltip: 'Bulan Berikutnya',
                   onPressed: () =>
                       ref.read(reportsNotifierProvider.notifier).nextMonth(),
@@ -68,7 +86,7 @@ class ReportsScreen extends ConsumerWidget {
               ],
             ),
           ),
-          const Divider(height: 1),
+          const SizedBox(height: 4),
 
           // Content
           Expanded(
@@ -81,9 +99,11 @@ class ReportsScreen extends ConsumerWidget {
               ),
               data: (report) {
                 return RefreshIndicator(
+                  color: AppTheme.primaryColor,
                   onRefresh: () =>
                       ref.read(reportsNotifierProvider.notifier).refresh(),
                   child: ListView(
+                    physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                     padding: const EdgeInsets.all(16),
                     children: [
                       // Cashflow Summary Card
@@ -103,21 +123,30 @@ class ReportsScreen extends ConsumerWidget {
                         Container(
                           padding: const EdgeInsets.all(32),
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.surfaceContainerLowest,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                                color: theme.colorScheme.outlineVariant),
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: const Color(0xFFFFECE5)),
                           ),
                           child: Column(
                             children: [
-                              Icon(Icons.pie_chart_outline_rounded,
-                                  size: 48,
-                                  color: theme.colorScheme.outlineVariant),
-                              const SizedBox(height: 12),
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFFFF1F2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.pie_chart_outline_rounded,
+                                  size: 40,
+                                  color: AppTheme.primaryColor,
+                                ),
+                              ),
+                              const SizedBox(height: 14),
                               Text(
                                 'Belum ada pengeluaran di bulan ini',
                                 style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: theme.colorScheme.outline,
+                                  color: const Color(0xFF78716C),
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],
@@ -125,12 +154,18 @@ class ReportsScreen extends ConsumerWidget {
                         )
                       else ...[
                         // Donut Chart
-                        SizedBox(
-                          height: 220,
+                        Container(
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: const Color(0xFFFFECE5)),
+                          ),
+                          height: 240,
                           child: PieChart(
                             PieChartData(
-                              sectionsSpace: 2,
-                              centerSpaceRadius: 44,
+                              sectionsSpace: 3,
+                              centerSpaceRadius: 48,
                               sections: _buildChartSections(report),
                             ),
                           ),
@@ -212,86 +247,206 @@ class ReportsScreen extends ConsumerWidget {
   }
 
   Widget _buildCashflowCard(BuildContext context, MonthlyReportModel report) {
-    final theme = Theme.of(context);
     final isPositive = report.netCashflow >= 0;
+    final colors = AppTheme.colorsOf(context);
 
-    return Card(
-      elevation: 0,
-      color: theme.colorScheme.surfaceContainerLow,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+    return Container(
+      decoration: BoxDecoration(
+        gradient: colors.sunsetGradient,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFE11D48).withValues(alpha: 0.35),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Stack(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            const AmbientBubbles(),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      Text(
-                        'Total Pemasukan',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.outline,
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.insert_chart_rounded,
+                          color: Colors.white,
+                          size: 18,
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        CurrencyFormatter.format(report.totalIncome),
-                        style: const TextStyle(
-                          color: Color(0xFF16A34A),
-                          fontWeight: FontWeight.bold,
+                      const SizedBox(width: 10),
+                      const Text(
+                        'Ringkasan Cashflow',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
                           fontSize: 16,
+                          letterSpacing: 0.3,
                         ),
                       ),
                     ],
                   ),
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  const SizedBox(height: 20),
+                  // Income & Expense pills
+                  Row(
                     children: [
-                      Text(
-                        'Total Pengeluaran',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.outline,
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.25)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFF34D399),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  const Text(
+                                    'Pemasukan',
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                CurrencyFormatter.format(report.totalIncome),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        CurrencyFormatter.format(report.totalExpense),
-                        style: const TextStyle(
-                          color: Color(0xFFDC2626),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.25)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFFFCA5A5),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  const Text(
+                                    'Pengeluaran',
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                CurrencyFormatter.format(report.totalExpense),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
-            const Divider(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Selisih / Net Cashflow',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
+                  const SizedBox(height: 14),
+                  // Net cashflow row
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Net Cashflow',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Icon(
+                              isPositive
+                                  ? Icons.arrow_upward_rounded
+                                  : Icons.arrow_downward_rounded,
+                              color: isPositive
+                                  ? const Color(0xFF34D399)
+                                  : const Color(0xFFFCA5A5),
+                              size: 16,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${isPositive ? "+" : ""}${CurrencyFormatter.format(report.netCashflow)}',
+                              style: TextStyle(
+                                color: isPositive
+                                    ? const Color(0xFF34D399)
+                                    : const Color(0xFFFCA5A5),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                Text(
-                  '${isPositive ? "+" : ""}${CurrencyFormatter.format(report.netCashflow)}',
-                  style: TextStyle(
-                    color: isPositive
-                        ? const Color(0xFF16A34A)
-                        : const Color(0xFFDC2626),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),

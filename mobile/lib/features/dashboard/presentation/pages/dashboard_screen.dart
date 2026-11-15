@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/app_router.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../shared/widgets/app_error_widget.dart';
 import '../../../../shared/widgets/app_loading_widget.dart';
+import '../../../../shared/widgets/bubble_background.dart';
 import '../../domain/models/dashboard_summary_model.dart';
 import '../providers/dashboard_provider.dart';
 
@@ -19,9 +21,27 @@ class DashboardScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Personal Finance',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                gradient: AppTheme.primaryGradient,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.wallet_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Text(
+              'Personal Finance',
+              style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: -0.5),
+            ),
+          ],
         ),
         actions: [
           IconButton(
@@ -38,13 +58,15 @@ class DashboardScreen extends ConsumerWidget {
           onRetry: () => ref.read(dashboardNotifierProvider.notifier).refresh(),
         ),
         data: (summary) => RefreshIndicator(
+          color: AppTheme.primaryColor,
           onRefresh: () => ref.read(dashboardNotifierProvider.notifier).refresh(),
           child: ListView(
+            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             children: [
-              // Total Balance Card
+              // Total Balance Card with Bubbles & Sunset Gradient
               _buildBalanceCard(context, summary),
-              const SizedBox(height: 20),
+              const SizedBox(height: 22),
 
               // Dompet & Akun Section
               _buildAccountsSection(context, summary.accountsSummary),
@@ -62,6 +84,9 @@ class DashboardScreen extends ConsumerWidget {
                   ),
                   TextButton(
                     onPressed: () => context.go(AppRoutes.transactions),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppTheme.primaryColor,
+                    ),
                     child: const Text('Lihat Semua'),
                   ),
                 ],
@@ -74,41 +99,61 @@ class DashboardScreen extends ConsumerWidget {
               else
                 ...summary.recentTransactions.map(
                   (tx) => Card(
-                    margin: const EdgeInsets.only(bottom: 8),
+                    margin: const EdgeInsets.only(bottom: 10),
                     elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: const BorderSide(color: Color(0xFFFFECE5)),
+                    ),
                     child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: tx.isIncome
-                            ? const Color(0xFF16A34A).withValues(alpha: 0.12)
-                            : const Color(0xFFDC2626).withValues(alpha: 0.12),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      leading: Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          gradient: tx.isIncome
+                              ? LinearGradient(
+                                  colors: [
+                                    const Color(0xFF10B981).withValues(alpha: 0.18),
+                                    const Color(0xFF059669).withValues(alpha: 0.08),
+                                  ],
+                                )
+                              : LinearGradient(
+                                  colors: [
+                                    const Color(0xFFE11D48).withValues(alpha: 0.18),
+                                    const Color(0xFFEA580C).withValues(alpha: 0.08),
+                                  ],
+                                ),
+                          shape: BoxShape.circle,
+                        ),
                         child: Icon(
                           tx.isIncome
                               ? Icons.arrow_downward_rounded
                               : Icons.arrow_upward_rounded,
                           color: tx.isIncome
-                              ? const Color(0xFF16A34A)
-                              : const Color(0xFFDC2626),
-                          size: 20,
+                              ? const Color(0xFF10B981)
+                              : const Color(0xFFE11D48),
+                          size: 22,
                         ),
                       ),
                       title: Text(
                         tx.description,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
+                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       subtitle: Text(
                         '${tx.category?.name ?? "Umum"} • ${DateFormatter.formatDate(tx.transactionDate)}',
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.outline,
+                          color: const Color(0xFF78716C),
                         ),
                       ),
                       trailing: Text(
                         '${tx.isIncome ? "+" : "-"}${CurrencyFormatter.format(tx.amount)}',
                         style: TextStyle(
                           color: tx.isIncome
-                              ? const Color(0xFF16A34A)
-                              : const Color(0xFFDC2626),
+                              ? const Color(0xFF10B981)
+                              : const Color(0xFFE11D48),
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
                         ),
@@ -116,15 +161,34 @@ class DashboardScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
-              const SizedBox(height: 60),
+              const SizedBox(height: 70),
             ],
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push(AppRoutes.addTransaction),
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('Catat Transaksi'),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          gradient: AppTheme.primaryGradient,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.primaryColor.withValues(alpha: 0.4),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: FloatingActionButton.extended(
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          onPressed: () => context.push(AppRoutes.addTransaction),
+          icon: const Icon(Icons.add_rounded),
+          label: const Text(
+            'Catat Transaksi',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
       ),
     );
   }
@@ -132,137 +196,203 @@ class DashboardScreen extends ConsumerWidget {
   Widget _buildBalanceCard(BuildContext context, DashboardSummaryModel summary) {
     final theme = Theme.of(context);
 
-    return Card(
-      color: theme.colorScheme.primary,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Container(
+      decoration: BoxDecoration(
+        gradient: AppTheme.sunsetGradient,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.primaryColor.withValues(alpha: 0.35),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          // Elegant Floating Bubbles
+          const AmbientBubbles(
+            primaryColor: Color(0xFFE11D48),
+            secondaryColor: Color(0xFFF97316),
+          ),
+
+          // Card Content
+          Padding(
+            padding: const EdgeInsets.all(22),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFFDE047),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Total Saldo Keseluruhan',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: Colors.white.withValues(alpha: 0.9),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.18),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.25),
+                          width: 1,
+                        ),
+                      ),
+                      child: Text(
+                        DateFormatter.formatMonthYear(DateTime.now()),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
                 Text(
-                  'Total Saldo Keseluruhan',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: Colors.white.withValues(alpha: 0.85),
+                  CurrencyFormatter.format(summary.totalBalance),
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.5,
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    DateFormatter.formatMonthYear(DateTime.now()),
-                    style: const TextStyle(color: Colors.white, fontSize: 12),
-                  ),
+                const SizedBox(height: 22),
+                Row(
+                  children: [
+                    // Pemasukan Pill
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.14),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.18),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF10B981),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.arrow_downward_rounded,
+                                size: 16,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Pemasukan',
+                                    style: TextStyle(
+                                      color: Colors.white.withValues(alpha: 0.8),
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Text(
+                                    CurrencyFormatter.formatCompact(summary.monthlyIncome),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    // Pengeluaran Pill
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.14),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.18),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFEF4444),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.arrow_upward_rounded,
+                                size: 16,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Pengeluaran',
+                                    style: TextStyle(
+                                      color: Colors.white.withValues(alpha: 0.8),
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Text(
+                                    CurrencyFormatter.formatCompact(summary.monthlyExpense),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              CurrencyFormatter.format(summary.totalBalance),
-              style: theme.textTheme.headlineMedium?.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                letterSpacing: -0.5,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Row(
-                      children: [
-                        const CircleAvatar(
-                          radius: 16,
-                          backgroundColor: Color(0xFF16A34A),
-                          child: Icon(Icons.arrow_downward_rounded,
-                              size: 18, color: Colors.white),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Pemasukan',
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.8),
-                                  fontSize: 11,
-                                ),
-                              ),
-                              Text(
-                                CurrencyFormatter.formatCompact(summary.monthlyIncome),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Row(
-                      children: [
-                        const CircleAvatar(
-                          radius: 16,
-                          backgroundColor: Color(0xFFDC2626),
-                          child: Icon(Icons.arrow_upward_rounded,
-                              size: 18, color: Colors.white),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Pengeluaran',
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.8),
-                                  fontSize: 11,
-                                ),
-                              ),
-                              Text(
-                                CurrencyFormatter.formatCompact(summary.monthlyExpense),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -284,44 +414,79 @@ class DashboardScreen extends ConsumerWidget {
             ),
             TextButton(
               onPressed: () => context.push(AppRoutes.accounts),
+              style: TextButton.styleFrom(
+                foregroundColor: AppTheme.secondaryColor,
+              ),
               child: const Text('Kelola'),
             ),
           ],
         ),
         const SizedBox(height: 8),
         SizedBox(
-          height: 80,
+          height: 88,
           child: ListView.separated(
+            physics: const BouncingScrollPhysics(),
             scrollDirection: Axis.horizontal,
             itemCount: accounts.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 10),
+            separatorBuilder: (_, __) => const SizedBox(width: 12),
             itemBuilder: (context, index) {
               final acc = accounts[index];
               return Container(
-                width: 160,
-                padding: const EdgeInsets.all(12),
+                width: 170,
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerLow,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: theme.colorScheme.outlineVariant),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      acc.name,
-                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: const Color(0xFFFFECE5), width: 1.2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.secondaryColor.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      CurrencyFormatter.format(acc.balance),
-                      style: TextStyle(
-                        color: theme.colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF7ED),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFFFEDD5)),
+                      ),
+                      child: const Icon(
+                        Icons.account_balance_wallet_rounded,
+                        color: AppTheme.secondaryColor,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            acc.name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                              color: Color(0xFF292524),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            CurrencyFormatter.format(acc.balance),
+                            style: const TextStyle(
+                              color: AppTheme.primaryColor,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],

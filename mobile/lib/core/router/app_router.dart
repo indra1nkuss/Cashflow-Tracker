@@ -43,6 +43,38 @@ final routerListenableProvider = Provider<RouterListenable>((ref) {
   return RouterListenable(ref);
 });
 
+CustomTransitionPage<void> _buildSmoothPage({
+  required LocalKey key,
+  required Widget child,
+}) {
+  return CustomTransitionPage<void>(
+    key: key,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 320),
+    reverseTransitionDuration: const Duration(milliseconds: 260),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      final curvedAnimation = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+        reverseCurve: Curves.easeInCubic,
+      );
+
+      final slideAnim = Tween<Offset>(
+        begin: const Offset(0.0, 0.04),
+        end: Offset.zero,
+      ).animate(curvedAnimation);
+
+      return FadeTransition(
+        opacity: curvedAnimation,
+        child: SlideTransition(
+          position: slideAnim,
+          child: child,
+        ),
+      );
+    },
+  );
+}
+
 final appRouterProvider = Provider<GoRouter>((ref) {
   final refreshListenable = ref.watch(routerListenableProvider);
 
@@ -82,50 +114,83 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: AppRoutes.splash,
-        builder: (context, state) => const SplashScreen(),
+        pageBuilder: (context, state) => _buildSmoothPage(
+          key: state.pageKey,
+          child: const SplashScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.login,
-        builder: (context, state) => const LoginScreen(),
+        pageBuilder: (context, state) => _buildSmoothPage(
+          key: state.pageKey,
+          child: const LoginScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.register,
-        builder: (context, state) => const RegisterScreen(),
+        pageBuilder: (context, state) => _buildSmoothPage(
+          key: state.pageKey,
+          child: const RegisterScreen(),
+        ),
       ),
       ShellRoute(
         builder: (context, state, child) => MainScaffold(child: child),
         routes: [
           GoRoute(
             path: AppRoutes.dashboard,
-            builder: (context, state) => const DashboardScreen(),
+            pageBuilder: (context, state) => _buildSmoothPage(
+              key: state.pageKey,
+              child: const DashboardScreen(),
+            ),
           ),
           GoRoute(
             path: AppRoutes.transactions,
-            builder: (context, state) => const TransactionsScreen(),
+            pageBuilder: (context, state) => _buildSmoothPage(
+              key: state.pageKey,
+              child: const TransactionsScreen(),
+            ),
           ),
           GoRoute(
             path: AppRoutes.addTransaction,
-            builder: (context, state) => const AddTransactionScreen(),
+            pageBuilder: (context, state) => _buildSmoothPage(
+              key: state.pageKey,
+              child: const AddTransactionScreen(),
+            ),
           ),
           GoRoute(
             path: AppRoutes.accounts,
-            builder: (context, state) => const AccountsScreen(),
+            pageBuilder: (context, state) => _buildSmoothPage(
+              key: state.pageKey,
+              child: const AccountsScreen(),
+            ),
           ),
           GoRoute(
             path: AppRoutes.categories,
-            builder: (context, state) => const CategoriesScreen(),
+            pageBuilder: (context, state) => _buildSmoothPage(
+              key: state.pageKey,
+              child: const CategoriesScreen(),
+            ),
           ),
           GoRoute(
             path: AppRoutes.reports,
-            builder: (context, state) => const ReportsScreen(),
+            pageBuilder: (context, state) => _buildSmoothPage(
+              key: state.pageKey,
+              child: const ReportsScreen(),
+            ),
           ),
           GoRoute(
             path: AppRoutes.settings,
-            builder: (context, state) => const SettingsScreen(),
+            pageBuilder: (context, state) => _buildSmoothPage(
+              key: state.pageKey,
+              child: const SettingsScreen(),
+            ),
           ),
           GoRoute(
             path: AppRoutes.telegramLink,
-            builder: (context, state) => const TelegramLinkScreen(),
+            pageBuilder: (context, state) => _buildSmoothPage(
+              key: state.pageKey,
+              child: const TelegramLinkScreen(),
+            ),
           ),
         ],
       ),

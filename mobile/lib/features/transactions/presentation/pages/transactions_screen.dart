@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/app_router.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../shared/widgets/app_error_widget.dart';
 import '../../../../shared/widgets/app_loading_widget.dart';
@@ -27,7 +28,7 @@ class TransactionsScreen extends ConsumerWidget {
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
+              backgroundColor: AppTheme.primaryColor,
             ),
             child: const Text('Hapus'),
           ),
@@ -56,10 +57,20 @@ class TransactionsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Daftar Transaksi'),
+        title: const Text(
+          'Daftar Transaksi',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.auto_awesome_rounded, color: Colors.purple),
+            icon: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                gradient: AppTheme.primaryGradient,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 18),
+            ),
             tooltip: 'Catat via AI',
             onPressed: () => AiTransactionDialog.show(context),
           ),
@@ -71,43 +82,50 @@ class TransactionsScreen extends ConsumerWidget {
       ),
       body: Column(
         children: [
-          // Filter Chips
+          // Filter Chips with Smooth Sunset / Crimson theme
           SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: Row(
               children: [
-                FilterChip(
-                  label: const Text('Semua'),
-                  selected: filter.type == null,
-                  onSelected: (_) {
+                _buildFilterChip(
+                  label: 'Semua',
+                  isSelected: filter.type == null,
+                  onTap: () {
                     ref.read(transactionsFilterProvider.notifier).update(
                           (s) => s.copyWith(clearType: true),
                         );
                   },
                 ),
                 const SizedBox(width: 8),
-                FilterChip(
-                  label: const Text('Pengeluaran'),
-                  selected: filter.type == 'EXPENSE',
-                  onSelected: (selected) {
+                _buildFilterChip(
+                  label: 'Pengeluaran',
+                  icon: Icons.arrow_upward_rounded,
+                  iconColor: const Color(0xFFEF4444),
+                  isSelected: filter.type == 'EXPENSE',
+                  onTap: () {
+                    final isCur = filter.type == 'EXPENSE';
                     ref.read(transactionsFilterProvider.notifier).update(
                           (s) => s.copyWith(
-                            type: selected ? 'EXPENSE' : null,
-                            clearType: !selected,
+                            type: isCur ? null : 'EXPENSE',
+                            clearType: isCur,
                           ),
                         );
                   },
                 ),
                 const SizedBox(width: 8),
-                FilterChip(
-                  label: const Text('Pemasukan'),
-                  selected: filter.type == 'INCOME',
-                  onSelected: (selected) {
+                _buildFilterChip(
+                  label: 'Pemasukan',
+                  icon: Icons.arrow_downward_rounded,
+                  iconColor: const Color(0xFF10B981),
+                  isSelected: filter.type == 'INCOME',
+                  onTap: () {
+                    final isCur = filter.type == 'INCOME';
                     ref.read(transactionsFilterProvider.notifier).update(
                           (s) => s.copyWith(
-                            type: selected ? 'INCOME' : null,
-                            clearType: !selected,
+                            type: isCur ? null : 'INCOME',
+                            clearType: isCur,
                           ),
                         );
                   },
@@ -115,7 +133,7 @@ class TransactionsScreen extends ConsumerWidget {
               ],
             ),
           ),
-          const Divider(height: 1),
+          const Divider(height: 1, color: Color(0xFFFFECE5)),
 
           // Transaction List Content
           Expanded(
@@ -134,10 +152,18 @@ class TransactionsScreen extends ConsumerWidget {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            Icons.receipt_long_outlined,
-                            size: 64,
-                            color: theme.colorScheme.outlineVariant,
+                          Container(
+                            width: 80,
+                            height: 80,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFFFF1F2),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.receipt_long_outlined,
+                              size: 40,
+                              color: AppTheme.primaryColor,
+                            ),
                           ),
                           const SizedBox(height: 16),
                           Text(
@@ -150,7 +176,7 @@ class TransactionsScreen extends ConsumerWidget {
                           Text(
                             'Tambahkan transaksi baru untuk mulai mencatat',
                             style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.outline,
+                              color: const Color(0xFF78716C),
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -166,79 +192,110 @@ class TransactionsScreen extends ConsumerWidget {
                 }
 
                 return RefreshIndicator(
+                  color: AppTheme.primaryColor,
                   onRefresh: () =>
                       ref.read(transactionsNotifierProvider.notifier).refresh(),
                   child: ListView.separated(
+                    physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     itemCount: transactions.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
+                    separatorBuilder: (_, __) => const SizedBox(height: 10),
                     itemBuilder: (context, index) {
                       final tx = transactions[index];
-                      return Card(
-                        elevation: 0,
-                        margin: EdgeInsets.zero,
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(color: const Color(0xFFFFECE5), width: 1.2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.02),
+                              blurRadius: 10,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
                         child: ListTile(
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 16,
-                            vertical: 6,
+                            vertical: 8,
                           ),
-                          leading: CircleAvatar(
-                            backgroundColor: tx.isIncome
-                                ? const Color(0xFF16A34A).withValues(alpha: 0.12)
-                                : const Color(0xFFDC2626).withValues(alpha: 0.12),
+                          leading: Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: tx.isIncome
+                                  ? LinearGradient(
+                                      colors: [
+                                        const Color(0xFF10B981).withValues(alpha: 0.2),
+                                        const Color(0xFF059669).withValues(alpha: 0.08),
+                                      ],
+                                    )
+                                  : LinearGradient(
+                                      colors: [
+                                        const Color(0xFFE11D48).withValues(alpha: 0.2),
+                                        const Color(0xFFEA580C).withValues(alpha: 0.08),
+                                      ],
+                                    ),
+                            ),
                             child: Icon(
                               tx.isIncome
                                   ? Icons.arrow_downward_rounded
                                   : Icons.arrow_upward_rounded,
                               color: tx.isIncome
-                                  ? const Color(0xFF16A34A)
-                                  : const Color(0xFFDC2626),
+                                  ? const Color(0xFF10B981)
+                                  : const Color(0xFFE11D48),
+                              size: 22,
                             ),
                           ),
                           title: Text(
                             tx.description,
-                            style: const TextStyle(fontWeight: FontWeight.w600),
+                            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
                           ),
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 6),
                               Row(
                                 children: [
                                   if (tx.category != null)
                                     Container(
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 8,
-                                        vertical: 2,
+                                        vertical: 3,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: theme.colorScheme.surfaceContainerHigh,
-                                        borderRadius: BorderRadius.circular(6),
+                                        color: const Color(0xFFFFF1F2),
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(color: const Color(0xFFFFE4E6)),
                                       ),
                                       child: Text(
                                         tx.category!.name,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 11,
-                                          color: theme.colorScheme.onSurfaceVariant,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppTheme.primaryColor,
                                         ),
                                       ),
                                     ),
-                                  const SizedBox(width: 6),
+                                  const SizedBox(width: 8),
                                   if (tx.account != null)
                                     Text(
                                       tx.account!.name,
                                       style: theme.textTheme.bodySmall?.copyWith(
-                                        color: theme.colorScheme.outline,
+                                        color: const Color(0xFF78716C),
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
                                 ],
                               ),
-                              const SizedBox(height: 2),
+                              const SizedBox(height: 4),
                               Text(
                                 DateFormatter.formatDateTime(tx.transactionDate),
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 11,
-                                  color: theme.colorScheme.outlineVariant,
+                                  color: Color(0xFFA8A29E),
                                 ),
                               ),
                             ],
@@ -250,17 +307,17 @@ class TransactionsScreen extends ConsumerWidget {
                                 '${tx.isIncome ? "+" : "-"}${CurrencyFormatter.format(tx.amount)}',
                                 style: TextStyle(
                                   color: tx.isIncome
-                                      ? const Color(0xFF16A34A)
-                                      : const Color(0xFFDC2626),
-                                  fontWeight: FontWeight.bold,
+                                      ? const Color(0xFF10B981)
+                                      : const Color(0xFFE11D48),
+                                  fontWeight: FontWeight.w900,
                                   fontSize: 15,
                                 ),
                               ),
                               IconButton(
-                                icon: Icon(
+                                icon: const Icon(
                                   Icons.delete_outline_rounded,
                                   size: 20,
-                                  color: theme.colorScheme.error.withValues(alpha: 0.7),
+                                  color: Color(0xFFA8A29E),
                                 ),
                                 onPressed: () => _confirmDelete(context, ref, tx),
                               ),
@@ -276,9 +333,80 @@ class TransactionsScreen extends ConsumerWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push(AppRoutes.addTransaction),
-        child: const Icon(Icons.add_rounded),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          gradient: AppTheme.primaryGradient,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.primaryColor.withValues(alpha: 0.4),
+              blurRadius: 14,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: FloatingActionButton(
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          onPressed: () => context.push(AppRoutes.addTransaction),
+          child: const Icon(Icons.add_rounded),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterChip({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+    IconData? icon,
+    Color? iconColor,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          gradient: isSelected ? AppTheme.primaryGradient : null,
+          color: isSelected ? null : Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isSelected ? Colors.transparent : const Color(0xFFFFD7CC),
+            width: 1,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ]
+              : null,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(
+                icon,
+                size: 16,
+                color: isSelected ? Colors.white : (iconColor ?? const Color(0xFF78716C)),
+              ),
+              const SizedBox(width: 6),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Colors.white : const Color(0xFF44403C),
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                fontSize: 13,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

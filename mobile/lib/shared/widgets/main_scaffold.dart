@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/router/app_router.dart';
+import '../../core/theme/app_theme.dart';
 
 class MainScaffold extends StatelessWidget {
   const MainScaffold({super.key, required this.child});
   final Widget child;
 
   static const _navItems = [
-    (label: 'Dashboard', icon: Icons.home_rounded, route: AppRoutes.dashboard),
+    (label: 'Dashboard', icon: Icons.dashboard_rounded, route: AppRoutes.dashboard),
     (label: 'Transaksi', icon: Icons.receipt_long_rounded, route: AppRoutes.transactions),
-    (label: 'Laporan', icon: Icons.bar_chart_rounded, route: AppRoutes.reports),
+    (label: 'Laporan', icon: Icons.pie_chart_rounded, route: AppRoutes.reports),
     (label: 'Pengaturan', icon: Icons.settings_rounded, route: AppRoutes.settings),
   ];
 
@@ -24,19 +25,130 @@ class MainScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final location = GoRouterState.of(context).matchedLocation;
+    final selectedIdx = _selectedIndex(context);
+
     return Scaffold(
-      body: child,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex(context),
-        onDestinationSelected: (index) => context.go(_navItems[index].route),
-        destinations: _navItems
-            .map(
-              (item) => NavigationDestination(
-                icon: Icon(item.icon),
-                label: item.label,
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 320),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        transitionBuilder: (child, animation) {
+          final slideAnim = Tween<Offset>(
+            begin: const Offset(0.0, 0.025),
+            end: Offset.zero,
+          ).animate(CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+          ));
+
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: slideAnim,
+              child: child,
+            ),
+          );
+        },
+        child: KeyedSubtree(
+          key: ValueKey<String>(location),
+          child: child,
+        ),
+      ),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: theme.scaffoldBackgroundColor,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 16,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Container(
+              height: 64,
+              decoration: BoxDecoration(
+                color: theme.cardTheme.color ?? Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: const Color(0xFFFFE4DC),
+                  width: 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.primaryColor.withValues(alpha: 0.06),
+                    blurRadius: 20,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-            )
-            .toList(),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: List.generate(_navItems.length, (index) {
+                  final item = _navItems[index];
+                  final isSelected = selectedIdx == index;
+
+                  return GestureDetector(
+                    onTap: () => context.go(item.route),
+                    behavior: HitTestBehavior.opaque,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.easeOutCubic,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: isSelected
+                            ? const LinearGradient(
+                                colors: [Color(0xFFFFF1F2), Color(0xFFFFF7ED)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              )
+                            : null,
+                        borderRadius: BorderRadius.circular(16),
+                        border: isSelected
+                            ? Border.all(
+                                color: const Color(0xFFF97316).withValues(alpha: 0.3),
+                                width: 1,
+                              )
+                            : null,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            item.icon,
+                            size: 22,
+                            color: isSelected
+                                ? AppTheme.primaryColor
+                                : const Color(0xFFA8A29E),
+                          ),
+                          if (isSelected) ...[
+                            const SizedBox(width: 8),
+                            Text(
+                              item.label,
+                              style: const TextStyle(
+                                color: AppTheme.primaryColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
