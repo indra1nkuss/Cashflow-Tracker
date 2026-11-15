@@ -23,6 +23,16 @@ class AccountsNotifier extends AsyncNotifier<List<AccountModel>> {
     state = await AsyncValue.guard(() => _fetchAccounts());
   }
 
+  /// Silently re-fetches latest accounts and balances without showing a loading spinner
+  Future<void> silentRefresh() async {
+    try {
+      final list = await _fetchAccounts();
+      state = AsyncValue.data(list);
+    } catch (_) {
+      // Ignored in background
+    }
+  }
+
   Future<bool> createAccount({
     required String name,
     required String accountType,

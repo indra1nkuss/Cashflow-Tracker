@@ -30,6 +30,17 @@ class ReportsNotifier extends AsyncNotifier<MonthlyReportModel> {
     state = await AsyncValue.guard(() => _fetchReport(period.year, period.month));
   }
 
+  /// Silently re-fetches latest monthly report without showing a loading spinner
+  Future<void> silentRefresh() async {
+    try {
+      final period = ref.read(reportPeriodProvider);
+      final report = await _fetchReport(period.year, period.month);
+      state = AsyncValue.data(report);
+    } catch (_) {
+      // Ignored in background
+    }
+  }
+
   void previousMonth() {
     final current = ref.read(reportPeriodProvider);
     ref.read(reportPeriodProvider.notifier).state =

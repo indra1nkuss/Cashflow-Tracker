@@ -4,6 +4,7 @@ import '../../data/transactions_repository.dart';
 import '../../domain/models/transaction_model.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../../accounts/presentation/providers/accounts_provider.dart';
+import '../../../reports/presentation/providers/reports_provider.dart';
 
 final transactionsRepositoryProvider = Provider<TransactionsRepository>((ref) {
   return TransactionsRepository();
@@ -59,6 +60,17 @@ class TransactionsNotifier extends AsyncNotifier<List<TransactionModel>> {
     state = await AsyncValue.guard(() => _fetchTransactions(filter));
   }
 
+  /// Silently re-fetches latest transactions list without showing a loading spinner
+  Future<void> silentRefresh() async {
+    try {
+      final filter = ref.read(transactionsFilterProvider);
+      final list = await _fetchTransactions(filter);
+      state = AsyncValue.data(list);
+    } catch (_) {
+      // Ignored in background
+    }
+  }
+
   Future<bool> createTransaction({
     required String type,
     required double amount,
@@ -80,10 +92,11 @@ class TransactionsNotifier extends AsyncNotifier<List<TransactionModel>> {
         notes: notes,
       );
 
-      // Refresh transactions, accounts (for balance update), and dashboard
+      // Refresh transactions, accounts, dashboard, and reports
       state = AsyncValue.data([newTx, ...state.value ?? []]);
       ref.invalidate(dashboardNotifierProvider);
       ref.invalidate(accountsNotifierProvider);
+      ref.invalidate(reportsNotifierProvider);
       return true;
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -98,9 +111,10 @@ class TransactionsNotifier extends AsyncNotifier<List<TransactionModel>> {
       state = AsyncValue.data(
         (state.value ?? []).where((t) => t.id != id).toList(),
       );
-      // Invalidate balances
+      // Invalidate balances and reports
       ref.invalidate(dashboardNotifierProvider);
       ref.invalidate(accountsNotifierProvider);
+      ref.invalidate(reportsNotifierProvider);
       return true;
     } catch (e, st) {
       state = AsyncValue.error(e, st);

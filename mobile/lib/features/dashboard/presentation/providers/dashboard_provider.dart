@@ -22,6 +22,16 @@ class DashboardNotifier extends AsyncNotifier<DashboardSummaryModel> {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() => _fetchSummary());
   }
+
+  /// Silently re-fetches latest summary without showing a full-screen loading spinner
+  Future<void> silentRefresh() async {
+    try {
+      final summary = await _fetchSummary();
+      state = AsyncValue.data(summary);
+    } catch (_) {
+      // Ignored in background
+    }
+  }
 }
 
 final dashboardNotifierProvider =

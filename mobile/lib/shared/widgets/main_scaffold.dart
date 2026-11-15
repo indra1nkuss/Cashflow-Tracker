@@ -1,12 +1,26 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/router/app_router.dart';
 import '../../core/theme/app_theme.dart';
+import '../../features/accounts/presentation/providers/accounts_provider.dart';
+import '../../features/dashboard/presentation/providers/dashboard_provider.dart';
+import '../../features/reports/presentation/providers/reports_provider.dart';
+import '../../features/transactions/presentation/providers/transactions_provider.dart';
 
-class MainScaffold extends StatelessWidget {
+class MainScaffold extends ConsumerStatefulWidget {
   const MainScaffold({super.key, required this.child});
   final Widget child;
+
+  @override
+  ConsumerState<MainScaffold> createState() => _MainScaffoldState();
+}
+
+class _MainScaffoldState extends ConsumerState<MainScaffold> with WidgetsBindingObserver {
+  Timer? _autoSyncTimer;
+  bool _isForeground = true;
 
   static const _navItems = [
     (label: 'Dashboard', icon: Icons.dashboard_rounded, route: AppRoutes.dashboard),
@@ -14,6 +28,49 @@ class MainScaffold extends StatelessWidget {
     (label: 'Laporan', icon: Icons.pie_chart_rounded, route: AppRoutes.reports),
     (label: 'Pengaturan', icon: Icons.settings_rounded, route: AppRoutes.settings),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _startPeriodicAutoSync();
+  }
+
+  @override
+  void dispose() {
+    _autoSyncTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _isForeground = true;
+      // Immediately sync as soon as user returns to the app (e.g. after using Telegram)
+      _syncAllSilently();
+    } else if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      _isForeground = false;
+    }
+  }
+
+  void _startPeriodicAutoSync() {
+    _autoSyncTimer?.cancel();
+    // Silent auto-sync every 6 seconds while user is actively viewing the app
+    _autoSyncTimer = Timer.periodic(const Duration(seconds: 6), (_) {
+      if (_isForeground && mounted) {
+        _syncAllSilently();
+      }
+    });
+  }
+
+  void _syncAllSilently() {
+    if (!mounted) return;
+    ref.read(dashboardNotifierProvider.notifier).silentRefresh();
+    ref.read(transactionsNotifierProvider.notifier).silentRefresh();
+    ref.read(accountsNotifierProvider.notifier).silentRefresh();
+    ref.read(reportsNotifierProvider.notifier).silentRefresh();
+  }
 
   int _selectedIndex(BuildContext context) {
     final location = GoRouterState.of(context).matchedLocation;
@@ -53,7 +110,7 @@ class MainScaffold extends StatelessWidget {
         },
         child: KeyedSubtree(
           key: ValueKey<String>(location),
-          child: child,
+          child: widget.child,
         ),
       ),
       bottomNavigationBar: Container(
@@ -94,7 +151,10 @@ class MainScaffold extends StatelessWidget {
                   final isSelected = selectedIdx == index;
 
                   return GestureDetector(
-                    onTap: () => context.go(item.route),
+                    onTap: () {
+                      _syncAllSilently();
+                      context.go(item.route);
+                    },
                     behavior: HitTestBehavior.opaque,
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 250),
