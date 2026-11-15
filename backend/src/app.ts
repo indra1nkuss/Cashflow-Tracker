@@ -7,6 +7,7 @@ import { apiRouter } from './routes/index.js';
 import { errorHandler } from './common/middleware/error-handler.middleware.js';
 import { notFoundHandler } from './common/middleware/not-found.middleware.js';
 import { generalRateLimiter } from './common/middleware/rate-limiter.middleware.js';
+import { telegramController } from './modules/telegram/telegram.controller.js';
 
 export const createApp = (): Application => {
   const app = express();
@@ -54,6 +55,11 @@ export const createApp = (): Application => {
       timestamp: new Date().toISOString(),
       version: '1.0.0',
     });
+  });
+
+  // ───────── Telegram Webhook (Exempt from rate limits) ─────────
+  app.post('/api/telegram/webhook', (req, res, next) => {
+    telegramController.handleWebhook(req, res, next);
   });
 
   // ───────── Global Rate Limiter ─────────

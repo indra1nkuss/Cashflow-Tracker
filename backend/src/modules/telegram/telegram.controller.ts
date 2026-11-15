@@ -6,17 +6,15 @@ import { UnauthorizedError } from '../../common/errors/app-error.js';
 import { Logger } from '../../common/utils/logger.js';
 
 export class TelegramController {
-  public async handleWebhook(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async handleWebhook(req: Request, res: Response, _next?: NextFunction): Promise<void> {
     try {
-      // Respond to Telegram immediately (standard webhook practice)
+      // Must await processing in serverless environment (Vercel) before sending response!
+      await telegramService.handleWebhookUpdate(req.body);
       res.status(200).json({ ok: true });
-
-      // Process update asynchronously in the background
-      telegramService.handleWebhookUpdate(req.body).catch((err) => {
-        Logger.error('Error handling Telegram webhook update:', err);
-      });
     } catch (error) {
-      next(error);
+      Logger.error('Error handling Telegram webhook update:', error);
+      // Return 200 to Telegram so it does not retry repeatedly on errors
+      res.status(200).json({ ok: true });
     }
   }
 
