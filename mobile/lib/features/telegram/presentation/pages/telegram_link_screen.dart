@@ -224,10 +224,12 @@ class TelegramLinkScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Text(
+            const Text(
               'Tekan tombol di bawah untuk mendapatkan kode unik, lalu kirimkan ke Bot Telegram kami.',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.outline,
+              style: TextStyle(
+                color: Color(0xFF57534E),
+                fontSize: 13,
+                height: 1.4,
               ),
             ),
             const SizedBox(height: 20),
@@ -236,26 +238,29 @@ class TelegramLinkScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: theme.colorScheme.primary),
+                  color: const Color(0xFFFFF1F2),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFE11D48), width: 1.5),
                 ),
                 child: Column(
                   children: [
-                    Text(
+                    const Text(
                       'KODE TAUTAN ANDA:',
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: theme.colorScheme.primary,
+                      style: TextStyle(
+                        color: Color(0xFFE11D48),
                         fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        letterSpacing: 1,
                       ),
                     ),
                     const SizedBox(height: 6),
                     SelectableText(
                       activeCode.code,
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 2,
-                        color: theme.colorScheme.primary,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 3,
+                        fontSize: 26,
+                        color: Color(0xFFE11D48),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -278,8 +283,10 @@ class TelegramLinkScreen extends ConsumerWidget {
                     const SizedBox(height: 10),
                     Text(
                       'Buka bot di Telegram lalu ketik:\n/link ${activeCode.code}',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.outline,
+                      style: const TextStyle(
+                        color: Color(0xFF57534E),
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w500,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -312,23 +319,27 @@ class TelegramLinkScreen extends ConsumerWidget {
   }
 
   Widget _buildUsageExamples(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           'CARA MENGGUNAKAN TELEGRAM BOT',
-          style: theme.textTheme.labelMedium?.copyWith(
-            color: theme.colorScheme.outline,
+          style: TextStyle(
+            color: Color(0xFFE11D48),
             fontWeight: FontWeight.bold,
+            fontSize: 12,
+            letterSpacing: 1,
           ),
         ),
         const SizedBox(height: 10),
         Card(
           elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+            side: const BorderSide(color: Color(0xFFFFECE5), width: 1.2),
+          ),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(18),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -337,13 +348,13 @@ class TelegramLinkScreen extends ConsumerWidget {
                   '"Membeli bensin Rp50.000"',
                   '🤖 Bot mencatat EXPENSE Rp50.000 ke kategori Transportasi',
                 ),
-                const Divider(height: 24),
+                const Divider(height: 24, color: Color(0xFFFFECE5)),
                 _buildExampleRow(
                   '💬 Pesan Pemasukan:',
                   '"Diterima gaji bulanan 5 juta"',
                   '🤖 Bot mencatat INCOME Rp5.000.000 ke kategori Gaji',
                 ),
-                const Divider(height: 24),
+                const Divider(height: 24, color: Color(0xFFFFECE5)),
                 _buildExampleRow(
                   '⚠️ Pesan Belum Lengkap:',
                   '"Membeli kopi Starbucks"',
@@ -361,18 +372,41 @@ class TelegramLinkScreen extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-        const SizedBox(height: 4),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: BoxDecoration(
-            color: Colors.blue.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(6),
+        Text(
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.w700,
+            fontSize: 13.5,
+            color: Color(0xFF1C1917),
           ),
-          child: Text(input, style: const TextStyle(fontStyle: FontStyle.italic, fontSize: 13)),
         ),
         const SizedBox(height: 4),
-        Text(output, style: const TextStyle(fontSize: 12, color: Colors.black87)),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFF1F2),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: const Color(0xFFFFE4E6)),
+          ),
+          child: Text(
+            input,
+            style: const TextStyle(
+              fontStyle: FontStyle.italic,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFFBE123C),
+            ),
+          ),
+        ),
+        const SizedBox(height: 5),
+        Text(
+          output,
+          style: const TextStyle(
+            fontSize: 12.5,
+            color: Color(0xFF44403C),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       ],
     );
   }

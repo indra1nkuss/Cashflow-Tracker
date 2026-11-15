@@ -138,18 +138,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(
+                    const Text(
                       'Selamat Datang Kembali',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
                         letterSpacing: -0.5,
+                        color: Color(0xFF1C1917),
                       ),
                     ),
                     const SizedBox(height: 6),
-                    Text(
+                    const Text(
                       'Masuk untuk melanjutkan pencatatan keuangan Anda',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.outline,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF57534E),
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     const SizedBox(height: 28),

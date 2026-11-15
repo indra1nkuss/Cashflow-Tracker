@@ -60,17 +60,79 @@ class AppTheme {
         colorScheme: ColorScheme.fromSeed(
           seedColor: primaryColor,
           primary: primaryColor,
+          onPrimary: Colors.white,
           secondary: secondaryColor,
+          onSecondary: Colors.white,
           tertiary: tertiaryColor,
+          onTertiary: Colors.white,
           surface: const Color(0xFFFCF9F8),
+          onSurface: const Color(0xFF1C1917),
+          onSurfaceVariant: const Color(0xFF57534E),
           surfaceContainerLowest: Colors.white,
-          surfaceContainerLow: const Color(0xFFFFF5F2),
+          surfaceContainerLow: const Color(0xFFFFF7F5),
           surfaceContainer: const Color(0xFFFFECE5),
-          surfaceContainerHigh: const Color(0xFFFFE4DC),
+          surfaceContainerHigh: const Color(0xFFFFE0D6),
+          outline: const Color(0xFF78716C),
+          outlineVariant: const Color(0xFFE7E5E4),
+          error: expenseColor,
+          onError: Colors.white,
           brightness: Brightness.light,
         ),
-        scaffoldBackgroundColor: const Color(0xFFFAF7F5),
+        scaffoldBackgroundColor: const Color(0xFFFBF8F6),
         fontFamily: 'Inter',
+        textTheme: const TextTheme(
+          headlineLarge: TextStyle(
+            color: Color(0xFF1C1917),
+            fontWeight: FontWeight.bold,
+            letterSpacing: -0.5,
+          ),
+          headlineMedium: TextStyle(
+            color: Color(0xFF1C1917),
+            fontWeight: FontWeight.bold,
+            letterSpacing: -0.5,
+          ),
+          headlineSmall: TextStyle(
+            color: Color(0xFF1C1917),
+            fontWeight: FontWeight.bold,
+            letterSpacing: -0.3,
+          ),
+          titleLarge: TextStyle(
+            color: Color(0xFF1C1917),
+            fontWeight: FontWeight.bold,
+          ),
+          titleMedium: TextStyle(
+            color: Color(0xFF1C1917),
+            fontWeight: FontWeight.w700,
+          ),
+          titleSmall: TextStyle(
+            color: Color(0xFF292524),
+            fontWeight: FontWeight.w600,
+          ),
+          bodyLarge: TextStyle(
+            color: Color(0xFF1C1917),
+            fontWeight: FontWeight.w500,
+          ),
+          bodyMedium: TextStyle(
+            color: Color(0xFF44403C),
+            fontWeight: FontWeight.normal,
+          ),
+          bodySmall: TextStyle(
+            color: Color(0xFF57534E),
+            fontWeight: FontWeight.normal,
+          ),
+          labelLarge: TextStyle(
+            color: Color(0xFF1C1917),
+            fontWeight: FontWeight.w600,
+          ),
+          labelMedium: TextStyle(
+            color: Color(0xFF57534E),
+            fontWeight: FontWeight.w500,
+          ),
+          labelSmall: TextStyle(
+            color: Color(0xFF78716C),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
         extensions: const [_lightColors],
         appBarTheme: const AppBarTheme(
           centerTitle: true,
@@ -95,6 +157,23 @@ class AppTheme {
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: Colors.white,
+          labelStyle: const TextStyle(
+            color: Color(0xFF57534E),
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+          ),
+          floatingLabelStyle: const TextStyle(
+            color: primaryColor,
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+          ),
+          hintStyle: const TextStyle(
+            color: Color(0xFFA8A29E),
+            fontWeight: FontWeight.normal,
+            fontSize: 14,
+          ),
+          prefixIconColor: const Color(0xFF78716C),
+          suffixIconColor: const Color(0xFF78716C),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: const BorderSide(color: Color(0xFFFFD7CC)),
@@ -107,6 +186,10 @@ class AppTheme {
             borderRadius: BorderRadius.circular(16),
             borderSide: const BorderSide(color: primaryColor, width: 2),
           ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: expenseColor, width: 1.5),
+          ),
           contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
         ),
         filledButtonTheme: FilledButtonThemeData(
@@ -114,7 +197,7 @@ class AppTheme {
             backgroundColor: primaryColor,
             foregroundColor: Colors.white,
             elevation: 2,
-            shadowColor: primaryColor.withValues(alpha: 0.4),
+            shadowColor: primaryColor.withValues(alpha: 0.35),
             minimumSize: const Size(double.infinity, 54),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -125,6 +208,27 @@ class AppTheme {
           foregroundColor: Colors.white,
           elevation: 4,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        ),
+        tabBarTheme: const TabBarThemeData(
+          labelColor: primaryColor,
+          unselectedLabelColor: Color(0xFF78716C),
+          indicatorColor: primaryColor,
+          labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+        ),
+        dialogTheme: DialogThemeData(
+          backgroundColor: Colors.white,
+          elevation: 10,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          titleTextStyle: const TextStyle(
+            color: Color(0xFF1C1917),
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+          contentTextStyle: const TextStyle(
+            color: Color(0xFF44403C),
+            fontSize: 14,
+          ),
         ),
         navigationBarTheme: NavigationBarThemeData(
           backgroundColor: Colors.white,

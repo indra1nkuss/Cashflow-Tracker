@@ -128,7 +128,6 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final colors = AppTheme.colorsOf(context);
     final accountsAsync = ref.watch(accountsNotifierProvider);
     final categoriesAsync = ref.watch(categoriesNotifierProvider);
@@ -252,7 +251,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                                     decoration: InputDecoration(
                                       hintText: '0',
                                       hintStyle: TextStyle(
-                                        color: _typeColor.withValues(alpha: 0.4),
+                                        color: _typeColor.withValues(alpha: 0.6),
                                         fontSize: 28,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -381,27 +380,29 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
+                                    const Text(
                                       'Tanggal Transaksi',
                                       style: TextStyle(
-                                        color: theme.colorScheme.outline,
-                                        fontSize: 11,
+                                        color: Color(0xFF57534E),
+                                        fontSize: 11.5,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
                                       DateFormatter.formatDate(_selectedDate),
                                       style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 14.5,
+                                        color: Color(0xFF1C1917),
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                              Icon(
+                              const Icon(
                                 Icons.chevron_right_rounded,
-                                color: theme.colorScheme.outline,
+                                color: Color(0xFF78716C),
                               ),
                             ],
                           ),
@@ -519,14 +520,14 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                 Icon(
                   icon,
                   size: 16,
-                  color: isSelected ? Colors.white : Colors.grey,
+                  color: isSelected ? Colors.white : const Color(0xFF475569),
                 ),
                 const SizedBox(width: 6),
                 Text(
                   label,
                   style: TextStyle(
-                    color: isSelected ? Colors.white : Colors.grey,
-                    fontWeight: FontWeight.w600,
+                    color: isSelected ? Colors.white : const Color(0xFF334155),
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                     fontSize: 13,
                   ),
                 ),

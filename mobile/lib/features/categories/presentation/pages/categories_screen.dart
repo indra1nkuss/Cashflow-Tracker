@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/widgets/app_error_widget.dart';
 import '../../../../shared/widgets/app_loading_widget.dart';
 import '../../domain/models/category_model.dart';
@@ -183,13 +184,29 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen>
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          final currentType = _tabController.index == 0 ? 'EXPENSE' : 'INCOME';
-          _showAddCategorySheet(context, currentType);
-        },
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('Tambah Kategori'),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          gradient: AppTheme.primaryGradient,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.primaryColor.withValues(alpha: 0.35),
+              blurRadius: 14,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: FloatingActionButton.extended(
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          onPressed: () {
+            final currentType = _tabController.index == 0 ? 'EXPENSE' : 'INCOME';
+            _showAddCategorySheet(context, currentType);
+          },
+          icon: const Icon(Icons.add_rounded),
+          label: const Text('Tambah Kategori', style: TextStyle(fontWeight: FontWeight.bold)),
+        ),
       ),
     );
   }
@@ -200,35 +217,69 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen>
     Color accentColor,
   ) {
     if (list.isEmpty) {
-      return const Center(child: Text('Belum ada kategori'));
+      return const Center(
+        child: Text(
+          'Belum ada kategori',
+          style: TextStyle(
+            color: Color(0xFF57534E),
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      );
     }
 
     return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemCount: list.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      separatorBuilder: (_, __) => const SizedBox(height: 10),
       itemBuilder: (context, index) {
         final cat = list[index];
-        return Card(
-          elevation: 0,
-          margin: EdgeInsets.zero,
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFFFECE5), width: 1.2),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
           child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: accentColor.withValues(alpha: 0.12),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            leading: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: accentColor.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Icon(Icons.category_rounded, color: accentColor, size: 20),
             ),
             title: Text(
               cat.name,
-              style: const TextStyle(fontWeight: FontWeight.w600),
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 14.5,
+                color: Color(0xFF1C1917),
+              ),
             ),
-            subtitle: Text(
-              cat.isDefault ? 'Bawaan Sistem' : 'Kustom Pengguna',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.outline,
+            subtitle: Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                cat.isDefault ? 'Bawaan Sistem' : 'Kustom Pengguna',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF57534E),
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
             trailing: cat.isDefault
-                ? const Icon(Icons.lock_outline_rounded, size: 16, color: Colors.grey)
+                ? const Icon(Icons.lock_outline_rounded, size: 18, color: Color(0xFF78716C))
                 : null,
           ),
         );

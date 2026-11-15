@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../shared/widgets/app_error_widget.dart';
 import '../../../../shared/widgets/app_loading_widget.dart';
@@ -166,7 +167,6 @@ class AccountsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     final accountsAsync = ref.watch(accountsNotifierProvider);
 
     return Scaffold(
@@ -197,69 +197,108 @@ class AccountsScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               children: [
                 // Header Total
-                Card(
-                  elevation: 0,
-                  color: theme.colorScheme.surfaceContainerHigh,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Total di Seluruh Akun',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.outline,
-                          ),
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                        blurRadius: 16,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Total di Seluruh Akun',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.2,
                         ),
-                        const SizedBox(height: 6),
-                        Text(
-                          CurrencyFormatter.format(totalBalance),
-                          style: theme.textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: theme.colorScheme.primary,
-                          ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        CurrencyFormatter.format(totalBalance),
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          letterSpacing: -0.5,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 18),
 
                 // Accounts List
                 ...accounts.map(
-                  (acc) => Card(
+                  (acc) => Container(
                     margin: const EdgeInsets.only(bottom: 10),
-                    elevation: 0,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFFFECE5), width: 1.2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.02),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
                     child: ListTile(
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
-                        vertical: 8,
+                        vertical: 6,
                       ),
-                      leading: CircleAvatar(
-                        backgroundColor: theme.colorScheme.primaryContainer,
+                      leading: Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF1F2),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFFFE4E6)),
+                        ),
                         child: Icon(
                           _getAccountIcon(acc.accountType),
-                          color: theme.colorScheme.primary,
+                          color: AppTheme.primaryColor,
+                          size: 22,
                         ),
                       ),
                       title: Text(
                         acc.name,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                          color: Color(0xFF1C1917),
+                        ),
                       ),
-                      subtitle: Text(
-                        'Tipe: ${acc.accountType} • Awal: ${CurrencyFormatter.formatCompact(acc.initialBalance)}',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.outline,
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          'Tipe: ${acc.accountType} • Awal: ${CurrencyFormatter.formatCompact(acc.initialBalance)}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF57534E),
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                       trailing: Text(
                         CurrencyFormatter.format(acc.currentBalance),
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14.5,
                           color: acc.currentBalance >= 0
-                              ? theme.colorScheme.onSurface
-                              : theme.colorScheme.error,
+                              ? const Color(0xFF1C1917)
+                              : AppTheme.expenseColor,
                         ),
                       ),
                     ),
@@ -270,10 +309,26 @@ class AccountsScreen extends ConsumerWidget {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showAddAccountSheet(context, ref),
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('Tambah Akun'),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          gradient: AppTheme.primaryGradient,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.primaryColor.withValues(alpha: 0.35),
+              blurRadius: 14,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: FloatingActionButton.extended(
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          onPressed: () => _showAddAccountSheet(context, ref),
+          icon: const Icon(Icons.add_rounded),
+          label: const Text('Tambah Akun', style: TextStyle(fontWeight: FontWeight.bold)),
+        ),
       ),
     );
   }

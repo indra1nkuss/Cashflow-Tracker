@@ -227,11 +227,13 @@ class SettingsScreen extends ConsumerWidget {
                 const SizedBox(height: 32),
 
                 // App Version
-                Center(
+                const Center(
                   child: Text(
                     '$kAppName v$kAppVersion',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.outlineVariant,
+                    style: TextStyle(
+                      color: Color(0xFF78716C),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -271,12 +273,13 @@ class SettingsScreen extends ConsumerWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFFFECE5), width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 12,
-            offset: const Offset(0, 4),
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -288,6 +291,7 @@ class SettingsScreen extends ConsumerWidget {
         height: 1,
         indent: 56,
         endIndent: 16,
+        color: Color(0xFFFFECE5),
       );
 
   Widget _buildListTile({
@@ -302,28 +306,35 @@ class SettingsScreen extends ConsumerWidget {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       leading: Container(
-        width: 40,
-        height: 40,
+        width: 42,
+        height: 42,
         decoration: BoxDecoration(
-          color: iconColor.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(10),
+          color: iconColor.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Icon(icon, color: iconColor, size: 20),
       ),
       title: Text(
         title,
         style: TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 14,
-          color: titleColor,
+          fontWeight: FontWeight.w700,
+          fontSize: 14.5,
+          color: titleColor ?? const Color(0xFF1C1917),
         ),
       ),
-      subtitle: Text(
-        subtitle,
-        style: const TextStyle(fontSize: 12),
+      subtitle: Padding(
+        padding: const EdgeInsets.only(top: 2),
+        child: Text(
+          subtitle,
+          style: const TextStyle(
+            fontSize: 12.5,
+            color: Color(0xFF57534E),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       ),
       trailing: showChevron
-          ? const Icon(Icons.chevron_right_rounded, size: 20)
+          ? const Icon(Icons.chevron_right_rounded, size: 20, color: Color(0xFF78716C))
           : null,
       onTap: onTap,
     );

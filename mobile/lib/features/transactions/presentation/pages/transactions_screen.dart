@@ -278,30 +278,30 @@ class TransactionsScreen extends ConsumerWidget {
                                       if (tx.category != null)
                                         Container(
                                           padding: const EdgeInsets.symmetric(
-                                            horizontal: 7,
-                                            vertical: 2,
+                                            horizontal: 8,
+                                            vertical: 2.5,
                                           ),
                                           decoration: BoxDecoration(
                                             color: const Color(0xFFFFF1F2),
                                             borderRadius: BorderRadius.circular(6),
-                                            border: Border.all(color: const Color(0xFFFFE4E6)),
+                                            border: Border.all(color: const Color(0xFFFFD4D8)),
                                           ),
                                           child: Text(
                                             tx.category!.name,
                                             style: const TextStyle(
-                                              fontSize: 10.5,
-                                              fontWeight: FontWeight.w600,
-                                              color: AppTheme.primaryColor,
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w700,
+                                              color: Color(0xFFBE123C),
                                             ),
                                           ),
                                         ),
                                       if (tx.account != null)
                                         Text(
                                           tx.account!.name,
-                                          style: theme.textTheme.bodySmall?.copyWith(
-                                            color: const Color(0xFF78716C),
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w500,
+                                          style: const TextStyle(
+                                            color: Color(0xFF57534E),
+                                            fontSize: 11.5,
+                                            fontWeight: FontWeight.w600,
                                           ),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
@@ -312,8 +312,9 @@ class TransactionsScreen extends ConsumerWidget {
                                   Text(
                                     DateFormatter.formatDateTime(tx.transactionDate),
                                     style: const TextStyle(
-                                      fontSize: 10.5,
-                                      color: Color(0xFFA8A29E),
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.w500,
+                                      color: Color(0xFF78716C),
                                     ),
                                   ),
                                 ],
@@ -330,22 +331,26 @@ class TransactionsScreen extends ConsumerWidget {
                                   '${tx.isIncome ? "+" : "-"}${CurrencyFormatter.format(tx.amount)}',
                                   style: TextStyle(
                                     color: tx.isIncome
-                                        ? const Color(0xFF10B981)
+                                        ? const Color(0xFF059669)
                                         : const Color(0xFFE11D48),
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 14,
                                   ),
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: 6),
                                 InkWell(
                                   onTap: () => _confirmDelete(context, ref, tx),
                                   borderRadius: BorderRadius.circular(8),
                                   child: Container(
                                     padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFF5F5F4),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
                                     child: const Icon(
                                       Icons.delete_outline_rounded,
-                                      size: 18,
-                                      color: Color(0xFFA8A29E),
+                                      size: 16,
+                                      color: Color(0xFF78716C),
                                     ),
                                   ),
                                 ),

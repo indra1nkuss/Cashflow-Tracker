@@ -138,14 +138,23 @@ class DashboardScreen extends ConsumerWidget {
                       ),
                       title: Text(
                         tx.description,
-                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                          color: Color(0xFF1C1917),
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      subtitle: Text(
-                        '${tx.category?.name ?? "Umum"} • ${DateFormatter.formatDate(tx.transactionDate)}',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: const Color(0xFF78716C),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          '${tx.category?.name ?? "Umum"} • ${DateFormatter.formatDate(tx.transactionDate)}',
+                          style: const TextStyle(
+                            color: Color(0xFF57534E),
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                       trailing: FittedBox(
@@ -155,9 +164,9 @@ class DashboardScreen extends ConsumerWidget {
                           '${tx.isIncome ? "+" : "-"}${CurrencyFormatter.format(tx.amount)}',
                           style: TextStyle(
                             color: tx.isIncome
-                                ? const Color(0xFF10B981)
+                                ? const Color(0xFF059669)
                                 : const Color(0xFFE11D48),
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w800,
                             fontSize: 15,
                           ),
                         ),
@@ -240,11 +249,13 @@ class DashboardScreen extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        Text(
+                        const Text(
                           'Total Saldo Keseluruhan',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: Colors.white.withValues(alpha: 0.9),
-                            fontWeight: FontWeight.w500,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.2,
                           ),
                         ),
                       ],
@@ -252,10 +263,10 @@ class DashboardScreen extends ConsumerWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.18),
+                        color: Colors.white.withValues(alpha: 0.22),
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.25),
+                          color: Colors.white.withValues(alpha: 0.35),
                           width: 1,
                         ),
                       ),
@@ -264,7 +275,7 @@ class DashboardScreen extends ConsumerWidget {
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
@@ -287,10 +298,10 @@ class DashboardScreen extends ConsumerWidget {
                       child: Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.14),
+                          color: Colors.white.withValues(alpha: 0.18),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.18),
+                            color: Colors.white.withValues(alpha: 0.28),
                             width: 1,
                           ),
                         ),
@@ -313,20 +324,21 @@ class DashboardScreen extends ConsumerWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
+                                  const Text(
                                     'Pemasukan',
                                     style: TextStyle(
-                                      color: Colors.white.withValues(alpha: 0.8),
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white,
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
+                                  const SizedBox(height: 2),
                                   Text(
                                     CurrencyFormatter.formatCompact(summary.monthlyIncome),
                                     style: const TextStyle(
                                       color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 14.5,
                                     ),
                                   ),
                                 ],
@@ -342,10 +354,10 @@ class DashboardScreen extends ConsumerWidget {
                       child: Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.14),
+                          color: Colors.white.withValues(alpha: 0.18),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.18),
+                            color: Colors.white.withValues(alpha: 0.28),
                             width: 1,
                           ),
                         ),
@@ -368,20 +380,21 @@ class DashboardScreen extends ConsumerWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
+                                  const Text(
                                     'Pengeluaran',
                                     style: TextStyle(
-                                      color: Colors.white.withValues(alpha: 0.8),
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white,
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
+                                  const SizedBox(height: 2),
                                   Text(
                                     CurrencyFormatter.formatCompact(summary.monthlyExpense),
                                     style: const TextStyle(
                                       color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 14.5,
                                     ),
                                   ),
                                 ],
@@ -508,31 +521,43 @@ class DashboardScreen extends ConsumerWidget {
   }
 
   Widget _buildEmptyTransactions(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Container(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFFFECE5), width: 1.2),
       ),
       child: Column(
         children: [
-          Icon(Icons.receipt_long_outlined,
-              size: 48, color: theme.colorScheme.outlineVariant),
-          const SizedBox(height: 12),
-          Text(
-            'Belum ada transaksi bulan ini',
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.colorScheme.outline,
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
+              color: Color(0xFFFFF1F2),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.receipt_long_outlined,
+              size: 36,
+              color: AppTheme.primaryColor,
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            'Mulai catat pemasukan atau pengeluaran harian Anda',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.outlineVariant,
+          const SizedBox(height: 14),
+          const Text(
+            'Belum Ada Transaksi Bulan Ini',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF1C1917),
+            ),
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'Mulai catat pemasukan atau pengeluaran harian Anda agar keuangan lebih terpantau.',
+            style: TextStyle(
+              fontSize: 13,
+              color: Color(0xFF57534E),
+              height: 1.4,
             ),
             textAlign: TextAlign.center,
           ),

@@ -127,7 +127,7 @@ class MainScaffold extends StatelessWidget {
                             size: 22,
                             color: isSelected
                                 ? AppTheme.primaryColor
-                                : const Color(0xFFA8A29E),
+                                : const Color(0xFF64748B),
                           ),
                           if (isSelected) ...[
                             const SizedBox(width: 8),
@@ -135,7 +135,7 @@ class MainScaffold extends StatelessWidget {
                               item.label,
                               style: const TextStyle(
                                 color: AppTheme.primaryColor,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w700,
                                 fontSize: 13,
                               ),
                             ),

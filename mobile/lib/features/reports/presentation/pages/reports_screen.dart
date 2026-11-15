@@ -204,8 +204,9 @@ class ReportsScreen extends ConsumerWidget {
                                         Text(
                                           item.name,
                                           style: const TextStyle(
-                                            fontWeight: FontWeight.w600,
+                                            fontWeight: FontWeight.w700,
                                             fontSize: 14,
+                                            color: Color(0xFF1C1917),
                                           ),
                                         ),
                                       ],
@@ -213,8 +214,9 @@ class ReportsScreen extends ConsumerWidget {
                                     Text(
                                       '${CurrencyFormatter.format(item.total)} (${percentage.toStringAsFixed(1)}%)',
                                       style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 13,
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 13.5,
+                                        color: Color(0xFF292524),
                                       ),
                                     ),
                                   ],
@@ -224,8 +226,7 @@ class ReportsScreen extends ConsumerWidget {
                                   borderRadius: BorderRadius.circular(4),
                                   child: LinearProgressIndicator(
                                     value: percentage / 100,
-                                    backgroundColor:
-                                        theme.colorScheme.surfaceContainerHigh,
+                                    backgroundColor: const Color(0xFFFFECE5),
                                     color: color,
                                     minHeight: 6,
                                   ),
@@ -329,8 +330,9 @@ class ReportsScreen extends ConsumerWidget {
                                   const Text(
                                     'Pemasukan',
                                     style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 11,
+                                      color: Colors.white,
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                 ],
@@ -340,7 +342,7 @@ class ReportsScreen extends ConsumerWidget {
                                 CurrencyFormatter.format(report.totalIncome),
                                 style: const TextStyle(
                                   color: Colors.white,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w800,
                                   fontSize: 15,
                                 ),
                               ),
@@ -376,8 +378,9 @@ class ReportsScreen extends ConsumerWidget {
                                   const Text(
                                     'Pengeluaran',
                                     style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 11,
+                                      color: Colors.white,
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                 ],
@@ -387,7 +390,7 @@ class ReportsScreen extends ConsumerWidget {
                                 CurrencyFormatter.format(report.totalExpense),
                                 style: const TextStyle(
                                   color: Colors.white,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w800,
                                   fontSize: 15,
                                 ),
                               ),
