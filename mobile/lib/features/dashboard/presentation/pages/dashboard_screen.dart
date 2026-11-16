@@ -24,21 +24,18 @@ class DashboardScreen extends ConsumerWidget {
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                gradient: AppTheme.primaryGradient,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(
-                Icons.wallet_rounded,
-                color: Colors.white,
-                size: 18,
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                'assets/images/app_logo.png',
+                width: 28,
+                height: 28,
+                fit: BoxFit.cover,
               ),
             ),
             const SizedBox(width: 10),
             const Text(
-              'Personal Finance',
+              'Cashflow Tracker',
               style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: -0.5),
             ),
           ],
