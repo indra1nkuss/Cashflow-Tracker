@@ -52,6 +52,7 @@ class TransactionsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final transactionsAsync = ref.watch(transactionsNotifierProvider);
     final filter = ref.watch(transactionsFilterProvider);
 
@@ -92,6 +93,7 @@ class TransactionsScreen extends ConsumerWidget {
                 _buildFilterChip(
                   label: 'Semua',
                   isSelected: filter.type == null,
+                  isDark: isDark,
                   onTap: () {
                     ref.read(transactionsFilterProvider.notifier).update(
                           (s) => s.copyWith(clearType: true),
@@ -104,6 +106,7 @@ class TransactionsScreen extends ConsumerWidget {
                   icon: Icons.arrow_upward_rounded,
                   iconColor: const Color(0xFFEF4444),
                   isSelected: filter.type == 'EXPENSE',
+                  isDark: isDark,
                   onTap: () {
                     final isCur = filter.type == 'EXPENSE';
                     ref.read(transactionsFilterProvider.notifier).update(
@@ -120,6 +123,7 @@ class TransactionsScreen extends ConsumerWidget {
                   icon: Icons.arrow_downward_rounded,
                   iconColor: const Color(0xFF10B981),
                   isSelected: filter.type == 'INCOME',
+                  isDark: isDark,
                   onTap: () {
                     final isCur = filter.type == 'INCOME';
                     ref.read(transactionsFilterProvider.notifier).update(
@@ -133,7 +137,10 @@ class TransactionsScreen extends ConsumerWidget {
               ],
             ),
           ),
-          const Divider(height: 1, color: Color(0xFFFFECE5)),
+          Divider(
+            height: 1,
+            color: isDark ? const Color(0xFF332D3C) : const Color(0xFFFFECE5),
+          ),
 
           // Transaction List Content
           Expanded(
@@ -155,14 +162,14 @@ class TransactionsScreen extends ConsumerWidget {
                           Container(
                             width: 80,
                             height: 80,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFFFF1F2),
+                            decoration: BoxDecoration(
+                              color: isDark ? const Color(0xFF331D24) : const Color(0xFFFFF1F2),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.receipt_long_outlined,
                               size: 40,
-                              color: AppTheme.primaryColor,
+                              color: isDark ? const Color(0xFFFB7185) : AppTheme.primaryColor,
                             ),
                           ),
                           const SizedBox(height: 16),
@@ -176,7 +183,7 @@ class TransactionsScreen extends ConsumerWidget {
                           Text(
                             'Tambahkan transaksi baru untuk mulai mencatat',
                             style: theme.textTheme.bodyMedium?.copyWith(
-                              color: const Color(0xFF78716C),
+                              color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF78716C),
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -208,12 +215,17 @@ class TransactionsScreen extends ConsumerWidget {
                           vertical: 12,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: isDark ? const Color(0xFF1E1B24) : Colors.white,
                           borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: const Color(0xFFFFECE5), width: 1.2),
+                          border: Border.all(
+                            color: isDark ? const Color(0xFF332D3C) : const Color(0xFFFFECE5),
+                            width: 1.2,
+                          ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.02),
+                              color: isDark
+                                  ? Colors.black.withValues(alpha: 0.25)
+                                  : Colors.black.withValues(alpha: 0.02),
                               blurRadius: 10,
                               offset: const Offset(0, 3),
                             ),
@@ -247,8 +259,8 @@ class TransactionsScreen extends ConsumerWidget {
                                     ? Icons.arrow_downward_rounded
                                     : Icons.arrow_upward_rounded,
                                 color: tx.isIncome
-                                    ? const Color(0xFF10B981)
-                                    : const Color(0xFFE11D48),
+                                    ? (isDark ? const Color(0xFF34D399) : const Color(0xFF10B981))
+                                    : (isDark ? const Color(0xFFFB7185) : const Color(0xFFE11D48)),
                                 size: 20,
                               ),
                             ),
@@ -261,10 +273,10 @@ class TransactionsScreen extends ConsumerWidget {
                                 children: [
                                   Text(
                                     tx.description,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.w700,
                                       fontSize: 14,
-                                      color: Color(0xFF1C1917),
+                                      color: isDark ? Colors.white : const Color(0xFF1C1917),
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -282,24 +294,26 @@ class TransactionsScreen extends ConsumerWidget {
                                             vertical: 2.5,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: const Color(0xFFFFF1F2),
+                                            color: isDark ? const Color(0xFF3A1E27) : const Color(0xFFFFF1F2),
                                             borderRadius: BorderRadius.circular(6),
-                                            border: Border.all(color: const Color(0xFFFFD4D8)),
+                                            border: Border.all(
+                                              color: isDark ? const Color(0xFF5A2535) : const Color(0xFFFFD4D8),
+                                            ),
                                           ),
                                           child: Text(
                                             tx.category!.name,
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 11,
                                               fontWeight: FontWeight.w700,
-                                              color: Color(0xFFBE123C),
+                                              color: isDark ? const Color(0xFFFB7185) : const Color(0xFFBE123C),
                                             ),
                                           ),
                                         ),
                                       if (tx.account != null)
                                         Text(
                                           tx.account!.name,
-                                          style: const TextStyle(
-                                            color: Color(0xFF57534E),
+                                          style: TextStyle(
+                                            color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF57534E),
                                             fontSize: 11.5,
                                             fontWeight: FontWeight.w600,
                                           ),
@@ -311,10 +325,10 @@ class TransactionsScreen extends ConsumerWidget {
                                   const SizedBox(height: 3),
                                   Text(
                                     DateFormatter.formatDateTime(tx.transactionDate),
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 11.5,
                                       fontWeight: FontWeight.w500,
-                                      color: Color(0xFF78716C),
+                                      color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF78716C),
                                     ),
                                   ),
                                 ],
@@ -331,8 +345,8 @@ class TransactionsScreen extends ConsumerWidget {
                                   '${tx.isIncome ? "+" : "-"}${CurrencyFormatter.format(tx.amount)}',
                                   style: TextStyle(
                                     color: tx.isIncome
-                                        ? const Color(0xFF059669)
-                                        : const Color(0xFFE11D48),
+                                        ? (isDark ? const Color(0xFF34D399) : const Color(0xFF059669))
+                                        : (isDark ? const Color(0xFFFB7185) : const Color(0xFFE11D48)),
                                     fontWeight: FontWeight.w800,
                                     fontSize: 14,
                                   ),
@@ -344,13 +358,13 @@ class TransactionsScreen extends ConsumerWidget {
                                   child: Container(
                                     padding: const EdgeInsets.all(4),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFF5F5F4),
+                                      color: isDark ? const Color(0xFF2C2735) : const Color(0xFFF5F5F4),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
-                                    child: const Icon(
+                                    child: Icon(
                                       Icons.delete_outline_rounded,
                                       size: 16,
-                                      color: Color(0xFF78716C),
+                                      color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF78716C),
                                     ),
                                   ),
                                 ),
@@ -394,6 +408,7 @@ class TransactionsScreen extends ConsumerWidget {
     required String label,
     required bool isSelected,
     required VoidCallback onTap,
+    bool isDark = false,
     IconData? icon,
     Color? iconColor,
   }) {
@@ -404,10 +419,12 @@ class TransactionsScreen extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           gradient: isSelected ? AppTheme.primaryGradient : null,
-          color: isSelected ? null : Colors.white,
+          color: isSelected ? null : (isDark ? const Color(0xFF1E1B24) : Colors.white),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: isSelected ? Colors.transparent : const Color(0xFFFFD7CC),
+            color: isSelected
+                ? Colors.transparent
+                : (isDark ? const Color(0xFF332D3C) : const Color(0xFFFFD7CC)),
             width: 1,
           ),
           boxShadow: isSelected
@@ -427,14 +444,18 @@ class TransactionsScreen extends ConsumerWidget {
               Icon(
                 icon,
                 size: 16,
-                color: isSelected ? Colors.white : (iconColor ?? const Color(0xFF78716C)),
+                color: isSelected
+                    ? Colors.white
+                    : (iconColor ?? (isDark ? const Color(0xFF9CA3AF) : const Color(0xFF78716C))),
               ),
               const SizedBox(width: 6),
             ],
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? Colors.white : const Color(0xFF44403C),
+                color: isSelected
+                    ? Colors.white
+                    : (isDark ? const Color(0xFFE5E7EB) : const Color(0xFF44403C)),
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                 fontSize: 13,
               ),

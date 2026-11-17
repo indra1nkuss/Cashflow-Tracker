@@ -95,81 +95,87 @@ class DashboardScreen extends ConsumerWidget {
                 _buildEmptyTransactions(context)
               else
                 ...summary.recentTransactions.map(
-                  (tx) => Card(
-                    margin: const EdgeInsets.only(bottom: 10),
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      side: const BorderSide(color: Color(0xFFFFECE5)),
-                    ),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                      leading: Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          gradient: tx.isIncome
-                              ? LinearGradient(
-                                  colors: [
-                                    const Color(0xFF10B981).withValues(alpha: 0.18),
-                                    const Color(0xFF059669).withValues(alpha: 0.08),
-                                  ],
-                                )
-                              : LinearGradient(
-                                  colors: [
-                                    const Color(0xFFE11D48).withValues(alpha: 0.18),
-                                    const Color(0xFFEA580C).withValues(alpha: 0.08),
-                                  ],
-                                ),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          tx.isIncome
-                              ? Icons.arrow_downward_rounded
-                              : Icons.arrow_upward_rounded,
-                          color: tx.isIncome
-                              ? const Color(0xFF10B981)
-                              : const Color(0xFFE11D48),
-                          size: 22,
+                  (tx) {
+                    final isDark = Theme.of(context).brightness == Brightness.dark;
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      elevation: 0,
+                      color: isDark ? const Color(0xFF1E1B24) : Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        side: BorderSide(
+                          color: isDark ? const Color(0xFF332D3C) : const Color(0xFFFFECE5),
                         ),
                       ),
-                      title: Text(
-                        tx.description,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15,
-                          color: Color(0xFF1C1917),
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      subtitle: Padding(
-                        padding: const EdgeInsets.only(top: 2),
-                        child: Text(
-                          '${tx.category?.name ?? "Umum"} • ${DateFormatter.formatDate(tx.transactionDate)}',
-                          style: const TextStyle(
-                            color: Color(0xFF57534E),
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w500,
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        leading: Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            gradient: tx.isIncome
+                                ? LinearGradient(
+                                    colors: [
+                                      const Color(0xFF10B981).withValues(alpha: 0.18),
+                                      const Color(0xFF059669).withValues(alpha: 0.08),
+                                    ],
+                                  )
+                                : LinearGradient(
+                                    colors: [
+                                      const Color(0xFFE11D48).withValues(alpha: 0.18),
+                                      const Color(0xFFEA580C).withValues(alpha: 0.08),
+                                    ],
+                                  ),
+                            shape: BoxShape.circle,
                           ),
-                        ),
-                      ),
-                      trailing: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          '${tx.isIncome ? "+" : "-"}${CurrencyFormatter.format(tx.amount)}',
-                          style: TextStyle(
+                          child: Icon(
+                            tx.isIncome
+                                ? Icons.arrow_downward_rounded
+                                : Icons.arrow_upward_rounded,
                             color: tx.isIncome
-                                ? const Color(0xFF059669)
-                                : const Color(0xFFE11D48),
-                            fontWeight: FontWeight.w800,
+                                ? (isDark ? const Color(0xFF34D399) : const Color(0xFF10B981))
+                                : (isDark ? const Color(0xFFFB7185) : const Color(0xFFE11D48)),
+                            size: 22,
+                          ),
+                        ),
+                        title: Text(
+                          tx.description,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
                             fontSize: 15,
+                            color: isDark ? Colors.white : const Color(0xFF1C1917),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Text(
+                            '${tx.category?.name ?? "Umum"} • ${DateFormatter.formatDate(tx.transactionDate)}',
+                            style: TextStyle(
+                              color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF57534E),
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        trailing: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            '${tx.isIncome ? "+" : "-"}${CurrencyFormatter.format(tx.amount)}',
+                            style: TextStyle(
+                              color: tx.isIncome
+                                  ? (isDark ? const Color(0xFF34D399) : const Color(0xFF059669))
+                                  : (isDark ? const Color(0xFFFB7185) : const Color(0xFFE11D48)),
+                              fontWeight: FontWeight.w800,
+                              fontSize: 15,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               const SizedBox(height: 70),
             ],
@@ -413,6 +419,7 @@ class DashboardScreen extends ConsumerWidget {
 
   Widget _buildAccountsSection(BuildContext context, List<AccountSummaryItem> accounts) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -449,12 +456,17 @@ class DashboardScreen extends ConsumerWidget {
                 width: 170,
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: isDark ? const Color(0xFF1E1B24) : Colors.white,
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: const Color(0xFFFFECE5), width: 1.2),
+                  border: Border.all(
+                    color: isDark ? const Color(0xFF332D3C) : const Color(0xFFFFECE5),
+                    width: 1.2,
+                  ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.secondaryColor.withValues(alpha: 0.05),
+                      color: isDark
+                          ? Colors.black.withValues(alpha: 0.25)
+                          : AppTheme.secondaryColor.withValues(alpha: 0.05),
                       blurRadius: 10,
                       offset: const Offset(0, 3),
                     ),
@@ -465,9 +477,11 @@ class DashboardScreen extends ConsumerWidget {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFFF7ED),
+                        color: isDark ? const Color(0xFF2C221C) : const Color(0xFFFFF7ED),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFFFEDD5)),
+                        border: Border.all(
+                          color: isDark ? const Color(0xFF453326) : const Color(0xFFFFEDD5),
+                        ),
                       ),
                       child: const Icon(
                         Icons.account_balance_wallet_rounded,
@@ -483,10 +497,10 @@ class DashboardScreen extends ConsumerWidget {
                         children: [
                           Text(
                             acc.name,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 13,
-                              color: Color(0xFF292524),
+                              color: isDark ? Colors.white : const Color(0xFF292524),
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -497,8 +511,8 @@ class DashboardScreen extends ConsumerWidget {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               CurrencyFormatter.format(acc.balance),
-                              style: const TextStyle(
-                                color: AppTheme.primaryColor,
+                              style: TextStyle(
+                                color: isDark ? const Color(0xFFFB7185) : AppTheme.primaryColor,
                                 fontWeight: FontWeight.w800,
                                 fontSize: 13,
                               ),
@@ -518,42 +532,47 @@ class DashboardScreen extends ConsumerWidget {
   }
 
   Widget _buildEmptyTransactions(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF1E1B24) : Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFFFECE5), width: 1.2),
+        border: Border.all(
+          color: isDark ? const Color(0xFF332D3C) : const Color(0xFFFFECE5),
+          width: 1.2,
+        ),
       ),
       child: Column(
         children: [
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
-              color: Color(0xFFFFF1F2),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF331D24) : const Color(0xFFFFF1F2),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.receipt_long_outlined,
               size: 36,
-              color: AppTheme.primaryColor,
+              color: isDark ? const Color(0xFFFB7185) : AppTheme.primaryColor,
             ),
           ),
           const SizedBox(height: 14),
-          const Text(
+          Text(
             'Belum Ada Transaksi Bulan Ini',
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF1C1917),
+              color: isDark ? Colors.white : const Color(0xFF1C1917),
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
+          Text(
             'Mulai catat pemasukan atau pengeluaran harian Anda agar keuangan lebih terpantau.',
             style: TextStyle(
               fontSize: 13,
-              color: Color(0xFF57534E),
+              color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF57534E),
               height: 1.4,
             ),
             textAlign: TextAlign.center,

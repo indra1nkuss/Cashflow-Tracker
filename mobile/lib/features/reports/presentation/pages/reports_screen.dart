@@ -27,6 +27,7 @@ class ReportsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final period = ref.watch(reportPeriodProvider);
     final reportAsync = ref.watch(reportsNotifierProvider);
 
@@ -50,12 +51,16 @@ class ReportsScreen extends ConsumerWidget {
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? const Color(0xFF1E1B24) : Colors.white,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFFFFECE5)),
+              border: Border.all(
+                color: isDark ? const Color(0xFF332D3C) : const Color(0xFFFFECE5),
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.02),
+                  color: isDark
+                      ? Colors.black.withValues(alpha: 0.25)
+                      : Colors.black.withValues(alpha: 0.02),
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
@@ -74,7 +79,7 @@ class ReportsScreen extends ConsumerWidget {
                   DateFormatter.formatMonthYear(period),
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w800,
-                    color: const Color(0xFF1C1917),
+                    color: isDark ? Colors.white : const Color(0xFF1C1917),
                   ),
                 ),
                 IconButton(
@@ -123,29 +128,31 @@ class ReportsScreen extends ConsumerWidget {
                         Container(
                           padding: const EdgeInsets.all(32),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: isDark ? const Color(0xFF1E1B24) : Colors.white,
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: const Color(0xFFFFECE5)),
+                            border: Border.all(
+                              color: isDark ? const Color(0xFF332D3C) : const Color(0xFFFFECE5),
+                            ),
                           ),
                           child: Column(
                             children: [
                               Container(
                                 padding: const EdgeInsets.all(16),
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFFFF1F2),
+                                decoration: BoxDecoration(
+                                  color: isDark ? const Color(0xFF331D24) : const Color(0xFFFFF1F2),
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.pie_chart_outline_rounded,
                                   size: 40,
-                                  color: AppTheme.primaryColor,
+                                  color: isDark ? const Color(0xFFFB7185) : AppTheme.primaryColor,
                                 ),
                               ),
                               const SizedBox(height: 14),
                               Text(
                                 'Belum ada pengeluaran di bulan ini',
                                 style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: const Color(0xFF78716C),
+                                  color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF78716C),
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -157,9 +164,11 @@ class ReportsScreen extends ConsumerWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(vertical: 20),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: isDark ? const Color(0xFF1E1B24) : Colors.white,
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: const Color(0xFFFFECE5)),
+                            border: Border.all(
+                              color: isDark ? const Color(0xFF332D3C) : const Color(0xFFFFECE5),
+                            ),
                           ),
                           height: 240,
                           child: PieChart(
@@ -203,20 +212,20 @@ class ReportsScreen extends ConsumerWidget {
                                         const SizedBox(width: 8),
                                         Text(
                                           item.name,
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontWeight: FontWeight.w700,
                                             fontSize: 14,
-                                            color: Color(0xFF1C1917),
+                                            color: isDark ? Colors.white : const Color(0xFF1C1917),
                                           ),
                                         ),
                                       ],
                                     ),
                                     Text(
                                       '${CurrencyFormatter.format(item.total)} (${percentage.toStringAsFixed(1)}%)',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontWeight: FontWeight.w800,
                                         fontSize: 13.5,
-                                        color: Color(0xFF292524),
+                                        color: isDark ? const Color(0xFFF3F4F6) : const Color(0xFF292524),
                                       ),
                                     ),
                                   ],
@@ -226,7 +235,7 @@ class ReportsScreen extends ConsumerWidget {
                                   borderRadius: BorderRadius.circular(4),
                                   child: LinearProgressIndicator(
                                     value: percentage / 100,
-                                    backgroundColor: const Color(0xFFFFECE5),
+                                    backgroundColor: isDark ? const Color(0xFF332D3C) : const Color(0xFFFFECE5),
                                     color: color,
                                     minHeight: 6,
                                   ),

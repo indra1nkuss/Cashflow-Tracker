@@ -5,11 +5,83 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/theme_provider.dart';
 import '../../../../shared/widgets/bubble_background.dart';
 import '../../../authentication/presentation/providers/auth_provider.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
+
+  void _showThemeDialog(BuildContext context, WidgetRef ref) {
+    final currentMode = ref.read(themeModeProvider);
+
+    Widget buildOption({
+      required String title,
+      required IconData icon,
+      required Color iconColor,
+      required ThemeMode mode,
+      required BuildContext ctx,
+    }) {
+      final isSelected = currentMode == mode;
+      return ListTile(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        leading: Icon(icon, color: iconColor),
+        title: Text(
+          title,
+          style: TextStyle(
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+          ),
+        ),
+        trailing: isSelected
+            ? const Icon(Icons.check_circle_rounded, color: AppTheme.primaryColor)
+            : null,
+        onTap: () {
+          ref.read(themeModeProvider.notifier).setThemeMode(mode);
+          Navigator.pop(ctx);
+        },
+      );
+    }
+
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Pilih Tema Tampilan'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            buildOption(
+              title: 'Mode Terang (Light)',
+              icon: Icons.wb_sunny_rounded,
+              iconColor: const Color(0xFFF59E0B),
+              mode: ThemeMode.light,
+              ctx: ctx,
+            ),
+            buildOption(
+              title: 'Mode Gelap (Dark)',
+              icon: Icons.nightlight_round,
+              iconColor: const Color(0xFFFB7185),
+              mode: ThemeMode.dark,
+              ctx: ctx,
+            ),
+            buildOption(
+              title: 'Ikuti Pengaturan Sistem HP',
+              icon: Icons.settings_system_daydream_rounded,
+              iconColor: const Color(0xFF6B7280),
+              mode: ThemeMode.system,
+              ctx: ctx,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Tutup'),
+          ),
+        ],
+      ),
+    );
+  }
 
   Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
@@ -42,6 +114,14 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final currentThemeMode = ref.watch(themeModeProvider);
+    final themeModeLabel = currentThemeMode == ThemeMode.light
+        ? 'Mode Terang (Light)'
+        : currentThemeMode == ThemeMode.dark
+            ? 'Mode Gelap (Dark)'
+            : 'Ikuti Sistem HP';
+
     final colors = AppTheme.colorsOf(context);
     final authState = ref.watch(authNotifierProvider);
     final user = authState.user;
@@ -189,25 +269,43 @@ class SettingsScreen extends ConsumerWidget {
                     iconColor: const Color(0xFF2AABEE),
                     title: 'Hubungkan Telegram Bot',
                     subtitle: 'Catat keuangan via pesan chat AI',
+                    isDark: isDark,
                     onTap: () => context.push(AppRoutes.telegramLink),
                   ),
-                  _buildDivider(),
+                  _buildDivider(isDark: isDark),
                   _buildListTile(
                     icon: Icons.category_rounded,
                     iconColor: const Color(0xFFEA580C),
                     title: 'Kelola Kategori',
                     subtitle: 'Atur kategori pemasukan & pengeluaran',
+                    isDark: isDark,
                     onTap: () => context.push(AppRoutes.categories),
                   ),
-                  _buildDivider(),
+                  _buildDivider(isDark: isDark),
                   _buildListTile(
                     icon: Icons.account_balance_rounded,
                     iconColor: const Color(0xFFE11D48),
                     title: 'Kelola Akun & Dompet',
                     subtitle: 'BCA, GoPay, Tunai, dll',
+                    isDark: isDark,
                     onTap: () => context.push(AppRoutes.accounts),
                   ),
-                ]),
+                ], isDark: isDark),
+                const SizedBox(height: 24),
+
+                // Section: Tampilan & Tema
+                _buildSectionLabel('TAMPILAN & TEMA', theme, colors),
+                const SizedBox(height: 10),
+                _buildCard([
+                  _buildListTile(
+                    icon: isDark ? Icons.nightlight_round : Icons.wb_sunny_rounded,
+                    iconColor: const Color(0xFFF59E0B),
+                    title: 'Tema Tampilan',
+                    subtitle: themeModeLabel,
+                    isDark: isDark,
+                    onTap: () => _showThemeDialog(context, ref),
+                  ),
+                ], isDark: isDark),
                 const SizedBox(height: 24),
 
                 // Section: Akun
@@ -220,18 +318,19 @@ class SettingsScreen extends ConsumerWidget {
                     title: 'Keluar dari Akun',
                     subtitle: 'Anda akan dikembalikan ke halaman login',
                     titleColor: theme.colorScheme.error,
+                    isDark: isDark,
                     onTap: () => _confirmLogout(context, ref),
                     showChevron: false,
                   ),
-                ]),
+                ], isDark: isDark),
                 const SizedBox(height: 32),
 
                 // App Version
-                const Center(
+                Center(
                   child: Text(
                     '$kAppName v$kAppVersion',
                     style: TextStyle(
-                      color: Color(0xFF78716C),
+                      color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF78716C),
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                     ),
@@ -269,15 +368,20 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildCard(List<Widget> children) {
+  Widget _buildCard(List<Widget> children, {bool isDark = false}) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF1E1B24) : Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFFFECE5), width: 1.2),
+        border: Border.all(
+          color: isDark ? const Color(0xFF332D3C) : const Color(0xFFFFECE5),
+          width: 1.2,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: isDark
+                ? Colors.black.withValues(alpha: 0.25)
+                : Colors.black.withValues(alpha: 0.03),
             blurRadius: 12,
             offset: const Offset(0, 3),
           ),
@@ -287,11 +391,11 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildDivider() => const Divider(
+  Widget _buildDivider({bool isDark = false}) => Divider(
         height: 1,
         indent: 56,
         endIndent: 16,
-        color: Color(0xFFFFECE5),
+        color: isDark ? const Color(0xFF332D3C) : const Color(0xFFFFECE5),
       );
 
   Widget _buildListTile({
@@ -300,6 +404,7 @@ class SettingsScreen extends ConsumerWidget {
     required String title,
     required String subtitle,
     required VoidCallback onTap,
+    bool isDark = false,
     Color? titleColor,
     bool showChevron = true,
   }) {
@@ -309,7 +414,7 @@ class SettingsScreen extends ConsumerWidget {
         width: 42,
         height: 42,
         decoration: BoxDecoration(
-          color: iconColor.withValues(alpha: 0.12),
+          color: iconColor.withValues(alpha: isDark ? 0.2 : 0.12),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Icon(icon, color: iconColor, size: 20),
@@ -319,22 +424,26 @@ class SettingsScreen extends ConsumerWidget {
         style: TextStyle(
           fontWeight: FontWeight.w700,
           fontSize: 14.5,
-          color: titleColor ?? const Color(0xFF1C1917),
+          color: titleColor ?? (isDark ? Colors.white : const Color(0xFF1C1917)),
         ),
       ),
       subtitle: Padding(
         padding: const EdgeInsets.only(top: 2),
         child: Text(
           subtitle,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12.5,
-            color: Color(0xFF57534E),
+            color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF57534E),
             fontWeight: FontWeight.w500,
           ),
         ),
       ),
       trailing: showChevron
-          ? const Icon(Icons.chevron_right_rounded, size: 20, color: Color(0xFF78716C))
+          ? Icon(
+              Icons.chevron_right_rounded,
+              size: 20,
+              color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF78716C),
+            )
           : null,
       onTap: onTap,
     );

@@ -167,6 +167,8 @@ class AccountsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final accountsAsync = ref.watch(accountsNotifierProvider);
 
     return Scaffold(
@@ -242,12 +244,17 @@ class AccountsScreen extends ConsumerWidget {
                   (acc) => Container(
                     margin: const EdgeInsets.only(bottom: 10),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: isDark ? const Color(0xFF1E1B24) : Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFFFECE5), width: 1.2),
+                      border: Border.all(
+                        color: isDark ? const Color(0xFF332D3C) : const Color(0xFFFFECE5),
+                        width: 1.2,
+                      ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.02),
+                          color: isDark
+                              ? Colors.black.withValues(alpha: 0.25)
+                              : Colors.black.withValues(alpha: 0.02),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -262,31 +269,33 @@ class AccountsScreen extends ConsumerWidget {
                         width: 42,
                         height: 42,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFFF1F2),
+                          color: isDark ? const Color(0xFF331D24) : const Color(0xFFFFF1F2),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFFFFE4E6)),
+                          border: Border.all(
+                            color: isDark ? const Color(0xFF4C2430) : const Color(0xFFFFE4E6),
+                          ),
                         ),
                         child: Icon(
                           _getAccountIcon(acc.accountType),
-                          color: AppTheme.primaryColor,
+                          color: isDark ? const Color(0xFFFB7185) : AppTheme.primaryColor,
                           size: 22,
                         ),
                       ),
                       title: Text(
                         acc.name,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 15,
-                          color: Color(0xFF1C1917),
+                          color: isDark ? Colors.white : const Color(0xFF1C1917),
                         ),
                       ),
                       subtitle: Padding(
                         padding: const EdgeInsets.only(top: 2),
                         child: Text(
                           'Tipe: ${acc.accountType} • Awal: ${CurrencyFormatter.formatCompact(acc.initialBalance)}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: Color(0xFF57534E),
+                            color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF57534E),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -297,8 +306,8 @@ class AccountsScreen extends ConsumerWidget {
                           fontWeight: FontWeight.w800,
                           fontSize: 14.5,
                           color: acc.currentBalance >= 0
-                              ? const Color(0xFF1C1917)
-                              : AppTheme.expenseColor,
+                              ? (isDark ? Colors.white : const Color(0xFF1C1917))
+                              : (isDark ? const Color(0xFFF87171) : AppTheme.expenseColor),
                         ),
                       ),
                     ),

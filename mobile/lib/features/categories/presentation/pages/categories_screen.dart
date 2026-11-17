@@ -216,12 +216,14 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen>
     ThemeData theme,
     Color accentColor,
   ) {
+    final isDark = theme.brightness == Brightness.dark;
+
     if (list.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'Belum ada kategori',
           style: TextStyle(
-            color: Color(0xFF57534E),
+            color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF57534E),
             fontSize: 14,
             fontWeight: FontWeight.w500,
           ),
@@ -237,12 +239,17 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen>
         final cat = list[index];
         return Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: isDark ? const Color(0xFF1E1B24) : Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFFFECE5), width: 1.2),
+            border: Border.all(
+              color: isDark ? const Color(0xFF332D3C) : const Color(0xFFFFECE5),
+              width: 1.2,
+            ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.02),
+                color: isDark
+                    ? Colors.black.withValues(alpha: 0.25)
+                    : Colors.black.withValues(alpha: 0.02),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -254,32 +261,36 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen>
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: accentColor.withValues(alpha: 0.12),
+                color: accentColor.withValues(alpha: isDark ? 0.2 : 0.12),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(Icons.category_rounded, color: accentColor, size: 20),
             ),
             title: Text(
               cat.name,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 14.5,
-                color: Color(0xFF1C1917),
+                color: isDark ? Colors.white : const Color(0xFF1C1917),
               ),
             ),
             subtitle: Padding(
               padding: const EdgeInsets.only(top: 2),
               child: Text(
                 cat.isDefault ? 'Bawaan Sistem' : 'Kustom Pengguna',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
-                  color: Color(0xFF57534E),
+                  color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF57534E),
                   fontWeight: FontWeight.w500,
                 ),
               ),
             ),
             trailing: cat.isDefault
-                ? const Icon(Icons.lock_outline_rounded, size: 18, color: Color(0xFF78716C))
+                ? Icon(
+                    Icons.lock_outline_rounded,
+                    size: 18,
+                    color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF78716C),
+                  )
                 : null,
           ),
         );
