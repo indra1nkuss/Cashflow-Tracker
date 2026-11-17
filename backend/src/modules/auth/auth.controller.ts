@@ -20,6 +20,26 @@ export class AuthController {
       next(error);
     }
   }
+
+  public async forgotPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { email } = req.body as { email: string };
+      const result = await authService.forgotPassword(email);
+      ApiResponse.success(res, result, 'Permintaan reset password dikirim');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public async resetPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { email, otp, newPassword } = req.body as { email: string; otp: string; newPassword: string };
+      await authService.resetPassword(email, otp, newPassword);
+      ApiResponse.success(res, null, 'Password berhasil diubah. Silakan login dengan password baru Anda.');
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export const authController = new AuthController();

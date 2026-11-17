@@ -20,10 +20,27 @@ export class ReportsService {
     userId: string,
     period: ReportPeriod = 'month'
   ): Promise<ReportSummaryResult> {
-    const now = new Date();
+    // Fix timezone: server runs UTC, user is in WIB (UTC+7)
+    // We compute "now" in WIB so date boundaries are correct for Indonesian users
+    const WIB_OFFSET_MS = 7 * 60 * 60 * 1000;
+    const nowUTC = new Date();
+    const nowWIB = new Date(nowUTC.getTime() + WIB_OFFSET_MS);
+
+    // Helper: build a WIB wall-clock Date, then shift back to UTC for DB queries
+    const wibToUTC = (year: number, month: number, day: number, h: number, m: number, s: number, ms: number): Date => {
+      // Date.UTC gives UTC timestamp for a given wall-clock date in UTC,
+      // but we want to treat it as WIB wall-clock, so subtract WIB offset
+      return new Date(Date.UTC(year, month, day, h, m, s, ms) - WIB_OFFSET_MS);
+    };
+
     let startDate: Date;
     let endDate: Date;
     let periodLabel: string;
+
+    const yr  = nowWIB.getUTCFullYear();
+    const mo  = nowWIB.getUTCMonth();
+    const day = nowWIB.getUTCDate();
+    const dow = nowWIB.getUTCDay(); // 0=Sun..6=Sat
 
     const indonesianMonths = [
       'Januari',
@@ -41,26 +58,30 @@ export class ReportsService {
     ];
 
     if (period === 'day') {
-      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-      endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
-      periodLabel = `Hari Ini (${now.getDate()} ${indonesianMonths[now.getMonth()]} ${now.getFullYear()})`;
+      startDate = wibToUTC(yr, mo, day, 0, 0, 0, 0);
+      endDate   = wibToUTC(yr, mo, day, 23, 59, 59, 999);
+      periodLabel = `Hari Ini (${day} ${indonesianMonths[mo]} ${yr})`;
     } else if (period === 'week') {
-      const day = now.getDay();
-      const diffToMonday = day === 0 ? -6 : 1 - day;
-      const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diffToMonday, 0, 0, 0, 0);
-      const sunday = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + 6, 23, 59, 59, 999);
+      const diffToMonday = dow === 0 ? -6 : 1 - dow;
+      const monDay = day + diffToMonday;
+      const monday = new Date(Date.UTC(yr, mo, monDay) - WIB_OFFSET_MS);
+      const sunday = new Date(Date.UTC(yr, mo, monDay + 6, 23, 59, 59, 999) - WIB_OFFSET_MS);
       startDate = monday;
-      endDate = sunday;
-      periodLabel = `Minggu Ini (${monday.getDate()} ${indonesianMonths[monday.getMonth()]} - ${sunday.getDate()} ${indonesianMonths[sunday.getMonth()]} ${sunday.getFullYear()})`;
+      endDate   = sunday;
+      // Labels: convert back to WIB for display
+      const monWIB = new Date(monday.getTime() + WIB_OFFSET_MS);
+      const sunWIB = new Date(sunday.getTime() + WIB_OFFSET_MS);
+      periodLabel = `Minggu Ini (${monWIB.getUTCDate()} ${indonesianMonths[monWIB.getUTCMonth()]} - ${sunWIB.getUTCDate()} ${indonesianMonths[sunWIB.getUTCMonth()]} ${sunWIB.getUTCFullYear()})`;
     } else if (period === 'year') {
-      startDate = new Date(now.getFullYear(), 0, 1, 0, 0, 0, 0);
-      endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
-      periodLabel = `Tahun Ini (${now.getFullYear()})`;
+      startDate = wibToUTC(yr, 0, 1, 0, 0, 0, 0);
+      endDate   = wibToUTC(yr, 11, 31, 23, 59, 59, 999);
+      periodLabel = `Tahun Ini (${yr})`;
     } else {
       // Month
-      startDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
-      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
-      periodLabel = `Bulan Ini (${indonesianMonths[now.getMonth()]} ${now.getFullYear()})`;
+      const lastDayOfMonth = new Date(Date.UTC(yr, mo + 1, 0)).getUTCDate();
+      startDate = wibToUTC(yr, mo, 1, 0, 0, 0, 0);
+      endDate   = wibToUTC(yr, mo, lastDayOfMonth, 23, 59, 59, 999);
+      periodLabel = `Bulan Ini (${indonesianMonths[mo]} ${yr})`;
     }
 
     const transactions = await prisma.transaction.findMany({
