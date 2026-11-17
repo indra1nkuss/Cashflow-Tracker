@@ -5,6 +5,8 @@ class ApiRoutes {
   // Auth
   static const String register = '/auth/register';
   static const String login = '/auth/login';
+  static const String forgotPassword = '/auth/forgot-password';
+  static const String resetPassword = '/auth/reset-password';
 
   // Users
   static const String me = '/users/me';
@@ -33,4 +35,3 @@ class ApiRoutes {
   // AI Parser
   static const String aiParse = '/ai-parser/parse';
 }
-

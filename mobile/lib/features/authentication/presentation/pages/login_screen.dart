@@ -250,6 +250,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                     const SizedBox(height: 28),
 
+                    // Forgot password link
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: GestureDetector(
+                        onTap: isLoading
+                            ? null
+                            : () => context.push(AppRoutes.forgotPassword),
+                        child: const Text(
+                          'Lupa Password?',
+                          style: TextStyle(
+                            color: Color(0xFFE11D48),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
                     // Gradient Submit Button
                     Container(
                       height: 52,

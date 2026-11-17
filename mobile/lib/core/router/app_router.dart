@@ -6,6 +6,8 @@ import '../../features/authentication/presentation/providers/auth_provider.dart'
 import '../../features/authentication/presentation/pages/splash_screen.dart';
 import '../../features/authentication/presentation/pages/login_screen.dart';
 import '../../features/authentication/presentation/pages/register_screen.dart';
+import '../../features/authentication/presentation/pages/forgot_password_screen.dart';
+import '../../features/authentication/presentation/pages/reset_password_screen.dart';
 import '../../features/dashboard/presentation/pages/dashboard_screen.dart';
 import '../../features/transactions/presentation/pages/transactions_screen.dart';
 import '../../features/transactions/presentation/pages/add_transaction_screen.dart';
@@ -21,6 +23,8 @@ class AppRoutes {
   static const String splash = '/';
   static const String login = '/login';
   static const String register = '/register';
+  static const String forgotPassword = '/forgot-password';
+  static const String resetPassword = '/reset-password';
   static const String dashboard = '/dashboard';
   static const String transactions = '/transactions';
   static const String addTransaction = '/transactions/add';
@@ -93,11 +97,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
       final isSplash = location == AppRoutes.splash;
       final isAuthForm = location == AppRoutes.login || location == AppRoutes.register;
+      final isPublicPage = isAuthForm ||
+          location == AppRoutes.forgotPassword ||
+          location.startsWith(AppRoutes.resetPassword);
 
       // If user is not authenticated:
       // Redirect to login if on splash or any private page
       if (!authState.isAuthenticated) {
-        if (isSplash || !isAuthForm) {
+        if (isSplash || !isPublicPage) {
           return AppRoutes.login;
         }
         return null;
@@ -131,6 +138,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => _buildSmoothPage(
           key: state.pageKey,
           child: const RegisterScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.forgotPassword,
+        pageBuilder: (context, state) => _buildSmoothPage(
+          key: state.pageKey,
+          child: const ForgotPasswordScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.resetPassword,
+        pageBuilder: (context, state) => _buildSmoothPage(
+          key: state.pageKey,
+          child: ResetPasswordScreen(email: state.extra as String? ?? ''),
         ),
       ),
       ShellRoute(
