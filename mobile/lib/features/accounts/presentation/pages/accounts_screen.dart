@@ -359,7 +359,7 @@ class AccountsScreen extends ConsumerWidget {
       body: accountsAsync.when(
         loading: () => const AppLoadingWidget(message: 'Memuat akun...'),
         error: (err, _) => AppErrorWidget(
-          message: 'Gagal memuat akun: $err',
+          message: '$err',
           onRetry: () => ref.read(accountsNotifierProvider.notifier).refresh(),
         ),
         data: (accounts) {

@@ -56,11 +56,35 @@ class ApiClient {
 
         handler.next(options);
       },
-      onError: (err, handler) {
+      onError: (err, handler) async {
         if (err.response?.statusCode == 401) {
           // Clear storage and redirect to login (handled via router redirect)
           _storage.deleteAll();
+          return handler.next(err);
         }
+
+        // Auto-retry GET requests up to 2 times for cold-starts or transient network issues
+        final requestOptions = err.requestOptions;
+        final isGet = requestOptions.method.toUpperCase() == 'GET';
+        final isNetworkIssue = err.type == DioExceptionType.connectionTimeout ||
+            err.type == DioExceptionType.receiveTimeout ||
+            err.type == DioExceptionType.connectionError;
+
+        final currentRetry = (requestOptions.extra['retry_count'] as int?) ?? 0;
+
+        if (isGet && isNetworkIssue && currentRetry < 2) {
+          requestOptions.extra['retry_count'] = currentRetry + 1;
+          await Future.delayed(Duration(milliseconds: 1000 * (currentRetry + 1)));
+          try {
+            final response = await _dio.fetch(requestOptions);
+            return handler.resolve(response);
+          } catch (e) {
+            if (e is DioException) {
+              return handler.next(e);
+            }
+          }
+        }
+
         handler.next(err);
       },
     );

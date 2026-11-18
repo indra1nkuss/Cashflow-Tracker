@@ -14,34 +14,47 @@ export class AccountsService {
       orderBy: { createdAt: 'asc' },
     });
 
-    const accountsWithBalance = await Promise.all(
-      accounts.map(async (account) => {
-        const incomeAggregate = await prisma.transaction.aggregate({
-          where: { accountId: account.id, type: 'INCOME' },
-          _sum: { amount: true },
-        });
+    if (accounts.length === 0) {
+      return [];
+    }
 
-        const expenseAggregate = await prisma.transaction.aggregate({
-          where: { accountId: account.id, type: 'EXPENSE' },
-          _sum: { amount: true },
-        });
+    const accountIds = accounts.map((a) => a.id);
 
-        const totalIncome = Number(incomeAggregate._sum.amount ?? 0);
-        const totalExpense = Number(expenseAggregate._sum.amount ?? 0);
-        const initial = Number(account.initialBalance);
-        const currentBalance = initial + totalIncome - totalExpense;
+    // Single fast aggregate query grouped by accountId and type
+    const aggregates = await prisma.transaction.groupBy({
+      by: ['accountId', 'type'],
+      where: {
+        userId,
+        accountId: { in: accountIds },
+      },
+      _sum: { amount: true },
+    });
 
-        return {
-          ...account,
-          initialBalance: initial,
-          totalIncome,
-          totalExpense,
-          currentBalance,
-        };
-      })
-    );
+    const balanceMap = new Map<string, { income: number; expense: number }>();
+    for (const agg of aggregates) {
+      const entry = balanceMap.get(agg.accountId) ?? { income: 0, expense: 0 };
+      const sum = Number(agg._sum.amount ?? 0);
+      if (agg.type === 'INCOME') {
+        entry.income += sum;
+      } else if (agg.type === 'EXPENSE') {
+        entry.expense += sum;
+      }
+      balanceMap.set(agg.accountId, entry);
+    }
 
-    return accountsWithBalance;
+    return accounts.map((account) => {
+      const entry = balanceMap.get(account.id) ?? { income: 0, expense: 0 };
+      const initial = Number(account.initialBalance);
+      const currentBalance = initial + entry.income - entry.expense;
+
+      return {
+        ...account,
+        initialBalance: initial,
+        totalIncome: entry.income,
+        totalExpense: entry.expense,
+        currentBalance,
+      };
+    });
   }
 
   public async createAccount(userId: string, input: CreateAccountInput) {

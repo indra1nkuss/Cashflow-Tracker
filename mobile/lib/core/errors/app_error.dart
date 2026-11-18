@@ -1,6 +1,9 @@
-abstract class AppError {
+abstract class AppError implements Exception {
   const AppError({required this.message});
   final String message;
+
+  @override
+  String toString() => message;
 }
 
 class NetworkError extends AppError {

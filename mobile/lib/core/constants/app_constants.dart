@@ -6,8 +6,8 @@ String get kApiBaseUrl {
   // Production live backend on Vercel
   return 'https://backend-one-phi-62.vercel.app/api';
 }
-const Duration kConnectTimeout = Duration(seconds: 15);
-const Duration kReceiveTimeout = Duration(seconds: 30);
+const Duration kConnectTimeout = Duration(seconds: 35);
+const Duration kReceiveTimeout = Duration(seconds: 45);
 
 // App Info
 const String kAppName = 'Personal Finance Tracker';

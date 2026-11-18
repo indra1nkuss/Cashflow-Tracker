@@ -147,7 +147,7 @@ class TransactionsScreen extends ConsumerWidget {
             child: transactionsAsync.when(
               loading: () => const AppLoadingWidget(message: 'Memuat transaksi...'),
               error: (err, _) => AppErrorWidget(
-                message: 'Gagal memuat transaksi: $err',
+                message: '$err',
                 onRetry: () =>
                     ref.read(transactionsNotifierProvider.notifier).refresh(),
               ),

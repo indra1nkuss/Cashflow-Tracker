@@ -11,28 +11,22 @@ export class DashboardService {
     const accounts = await accountsService.getAccountsWithBalance(userId);
     const totalBalance = accounts.reduce((acc, curr) => acc + curr.currentBalance, 0);
 
-    // Monthly income aggregate
-    const incomeAggregate = await prisma.transaction.aggregate({
+    // Monthly income & expense aggregate in a single fast query
+    const monthlyAggregates = await prisma.transaction.groupBy({
+      by: ['type'],
       where: {
         userId,
-        type: 'INCOME',
         transactionDate: { gte: startOfMonth, lte: endOfMonth },
       },
       _sum: { amount: true },
     });
 
-    // Monthly expense aggregate
-    const expenseAggregate = await prisma.transaction.aggregate({
-      where: {
-        userId,
-        type: 'EXPENSE',
-        transactionDate: { gte: startOfMonth, lte: endOfMonth },
-      },
-      _sum: { amount: true },
-    });
-
-    const monthlyIncome = Number(incomeAggregate._sum.amount ?? 0);
-    const monthlyExpense = Number(expenseAggregate._sum.amount ?? 0);
+    let monthlyIncome = 0;
+    let monthlyExpense = 0;
+    for (const agg of monthlyAggregates) {
+      if (agg.type === 'INCOME') monthlyIncome = Number(agg._sum.amount ?? 0);
+      if (agg.type === 'EXPENSE') monthlyExpense = Number(agg._sum.amount ?? 0);
+    }
     const netSavings = monthlyIncome - monthlyExpense;
 
     // Recent 5 transactions

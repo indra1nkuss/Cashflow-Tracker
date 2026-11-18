@@ -98,7 +98,7 @@ class ReportsScreen extends ConsumerWidget {
             child: reportAsync.when(
               loading: () => const AppLoadingWidget(message: 'Memuat laporan...'),
               error: (err, _) => AppErrorWidget(
-                message: 'Gagal memuat laporan: $err',
+                message: '$err',
                 onRetry: () =>
                     ref.read(reportsNotifierProvider.notifier).refresh(),
               ),

@@ -51,7 +51,7 @@ class DashboardScreen extends ConsumerWidget {
       body: summaryAsync.when(
         loading: () => const AppLoadingWidget(message: 'Memuat ringkasan keuangan...'),
         error: (err, _) => AppErrorWidget(
-          message: 'Gagal memuat ringkasan: $err',
+          message: '$err',
           onRetry: () => ref.read(dashboardNotifierProvider.notifier).refresh(),
         ),
         data: (summary) => RefreshIndicator(
