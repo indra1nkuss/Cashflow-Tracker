@@ -150,6 +150,181 @@ class AccountsScreen extends ConsumerWidget {
     );
   }
 
+  void _showEditAccountSheet(BuildContext context, WidgetRef ref, dynamic acc) {
+    final formKey = GlobalKey<FormState>();
+    final nameCtrl = TextEditingController(text: acc.name);
+    final balanceCtrl = TextEditingController(text: acc.initialBalance.toStringAsFixed(0));
+    String accountType = acc.accountType;
+    bool isLoading = false;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                top: 20,
+                left: 20,
+                right: 20,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+              ),
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Edit Akun',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close_rounded),
+                          onPressed: () => Navigator.pop(ctx),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: nameCtrl,
+                      decoration: const InputDecoration(
+                        labelText: 'Nama Akun',
+                        hintText: 'cth: BCA, GoPay, Dompet Tunai',
+                        prefixIcon: Icon(Icons.account_balance_rounded),
+                      ),
+                      validator: (v) => v == null || v.trim().isEmpty ? 'Nama akun wajib diisi' : null,
+                    ),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<String>(
+                      initialValue: accountType,
+                      decoration: const InputDecoration(
+                        labelText: 'Tipe Akun',
+                        prefixIcon: Icon(Icons.category_outlined),
+                      ),
+                      items: const [
+                        DropdownMenuItem(value: 'BANK', child: Text('Bank (BCA, Mandiri, dll)')),
+                        DropdownMenuItem(value: 'CASH', child: Text('Uang Tunai / Cash')),
+                        DropdownMenuItem(value: 'EWALLET', child: Text('E-Wallet (GoPay, OVO, dll)')),
+                        DropdownMenuItem(value: 'INVESTMENT', child: Text('Investasi / Reksadana')),
+                        DropdownMenuItem(value: 'OTHER', child: Text('Lainnya')),
+                      ],
+                      onChanged: (val) {
+                        if (val != null) setSheetState(() => accountType = val);
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: balanceCtrl,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Saldo Awal',
+                        prefixText: 'Rp ',
+                        hintText: '0',
+                      ),
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) return 'Saldo awal wajib diisi';
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    FilledButton(
+                      onPressed: isLoading
+                          ? null
+                          : () async {
+                              if (!formKey.currentState!.validate()) return;
+                              setSheetState(() => isLoading = true);
+
+                              final initial = double.tryParse(
+                                      balanceCtrl.text.replaceAll(RegExp(r'[^0-9.]'), '')) ??
+                                  0.0;
+
+                              final success = await ref
+                                  .read(accountsNotifierProvider.notifier)
+                                  .updateAccount(
+                                    accountId: acc.id,
+                                    name: nameCtrl.text.trim(),
+                                    accountType: accountType,
+                                    initialBalance: initial,
+                                  );
+
+                              if (ctx.mounted) {
+                                Navigator.pop(ctx);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(success
+                                        ? 'Akun berhasil diperbarui!'
+                                        : 'Gagal memperbarui akun'),
+                                  ),
+                                );
+                              }
+                            },
+                      child: isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text('Simpan Perubahan'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _confirmDelete(BuildContext context, WidgetRef ref, dynamic acc) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Hapus Akun?'),
+        content: Text(
+          'Akun "${acc.name}" akan dihapus.\nRiwayat transaksi tetap tersimpan.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      final success = await ref
+          .read(accountsNotifierProvider.notifier)
+          .deleteAccount(acc.id);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(success ? 'Akun berhasil dihapus' : 'Gagal menghapus akun'),
+          ),
+        );
+      }
+    }
+  }
+
   IconData _getAccountIcon(String type) {
     switch (type) {
       case 'BANK':
@@ -300,15 +475,57 @@ class AccountsScreen extends ConsumerWidget {
                           ),
                         ),
                       ),
-                      trailing: Text(
-                        CurrencyFormatter.format(acc.currentBalance),
-                        style: TextStyle(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 14.5,
-                          color: acc.currentBalance >= 0
-                              ? (isDark ? Colors.white : const Color(0xFF1C1917))
-                              : (isDark ? const Color(0xFFF87171) : AppTheme.expenseColor),
-                        ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            CurrencyFormatter.format(acc.currentBalance),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 13,
+                              color: acc.currentBalance >= 0
+                                  ? (isDark ? Colors.white : const Color(0xFF1C1917))
+                                  : (isDark ? const Color(0xFFF87171) : AppTheme.expenseColor),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          PopupMenuButton<String>(
+                            icon: Icon(
+                              Icons.more_vert_rounded,
+                              size: 20,
+                              color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF78716C),
+                            ),
+                            onSelected: (value) {
+                              if (value == 'edit') {
+                                _showEditAccountSheet(context, ref, acc);
+                              } else if (value == 'delete') {
+                                _confirmDelete(context, ref, acc);
+                              }
+                            },
+                            itemBuilder: (ctx) => [
+                              const PopupMenuItem(
+                                value: 'edit',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.edit_rounded, size: 18),
+                                    SizedBox(width: 8),
+                                    Text('Edit Akun'),
+                                  ],
+                                ),
+                              ),
+                              const PopupMenuItem(
+                                value: 'delete',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.delete_outline_rounded, size: 18, color: Colors.red),
+                                    SizedBox(width: 8),
+                                    Text('Hapus Akun', style: TextStyle(color: Colors.red)),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ),

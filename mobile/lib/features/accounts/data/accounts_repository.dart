@@ -41,5 +41,35 @@ class AccountsRepository {
       throw _apiClient.handleDioError(e);
     }
   }
+
+  Future<AccountModel> updateAccount({
+    required String accountId,
+    required String name,
+    required String accountType,
+    required double initialBalance,
+  }) async {
+    try {
+      final response = await _apiClient.dio.patch(
+        '${ApiRoutes.accounts}/$accountId',
+        data: {
+          'name': name.trim(),
+          'accountType': accountType,
+          'initialBalance': initialBalance,
+        },
+      );
+      final data = response.data['data'] as Map<String, dynamic>;
+      return AccountModel.fromJson(data);
+    } on DioException catch (e) {
+      throw _apiClient.handleDioError(e);
+    }
+  }
+
+  Future<void> deleteAccount(String accountId) async {
+    try {
+      await _apiClient.dio.delete('${ApiRoutes.accounts}/$accountId');
+    } on DioException catch (e) {
+      throw _apiClient.handleDioError(e);
+    }
+  }
 }
 

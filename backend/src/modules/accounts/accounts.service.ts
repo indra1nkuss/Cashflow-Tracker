@@ -108,6 +108,24 @@ export class AccountsService {
 
     return updated;
   }
+
+  public async deleteAccount(userId: string, accountId: string) {
+    const existing = await prisma.account.findFirst({
+      where: { id: accountId, userId },
+    });
+
+    if (!existing) {
+      throw new NotFoundError('Akun tidak ditemukan');
+    }
+
+    // Soft delete: arsipkan akun agar riwayat transaksi tetap terjaga
+    const archived = await prisma.account.update({
+      where: { id: accountId },
+      data: { isArchived: true },
+    });
+
+    return archived;
+  }
 }
 
 export const accountsService = new AccountsService();

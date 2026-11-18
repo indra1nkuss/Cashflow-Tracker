@@ -9,6 +9,7 @@ export interface ParsedTransactionResult {
   category?: string;
   description?: string;
   account?: string;
+  accountName?: string | null;
   date?: string;
   needsClarification: boolean;
   clarificationMessage?: string;
@@ -57,6 +58,7 @@ Tugas Anda mengekstrak informasi keuangan dari teks bahasa Indonesia menjadi for
   "amount": number | null,
   "category": string | null,
   "description": string | null,
+  "accountName": string | null,
   "needsClarification": boolean,
   "clarificationMessage": string | null
 }
@@ -65,7 +67,8 @@ Aturan:
 1. Nominal wajib diekstrak dalam angka murni (cth: "50.000" -> 50000, "5 jt" -> 5000000).
 2. Jika nominal tidak disebutkan atau kurang jelas, set "needsClarification": true dan berikan "clarificationMessage" yang sopan meminta nominal transaksi.
 3. Kategori disesuaikan dengan konteks (Transportasi, Makanan & Minuman, Gaji, Belanja, dll).
-4. Jangan pernah mengarang nominal jika tidak ada di teks.`;
+4. Jangan pernah mengarang nominal jika tidak ada di teks.
+5. "accountName": ekstrak nama bank atau e-wallet yang disebutkan dalam teks (cth: "BCA", "BNI", "Mandiri", "GoPay", "OVO", "Dana", "ShopeePay", "LinkAja", "Cash", "Tunai"). Jika tidak ada nama akun/dompet yang disebutkan, set "accountName": null. Contoh: "diterima gaji BNI" -> accountName: "BNI", "beli bensin gopay" -> accountName: "GoPay", "bayar listrik" -> accountName: null.`;
 
     try {
       const response = await this.client.chat.completions.create({

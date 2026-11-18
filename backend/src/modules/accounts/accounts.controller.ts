@@ -44,6 +44,16 @@ export class AccountsController {
       next(error);
     }
   }
+
+  public async deleteAccount(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (!req.user) throw new UnauthorizedError();
+      await accountsService.deleteAccount(req.user.userId, req.params.id as string);
+      ApiResponse.success(res, null, 'Akun berhasil dihapus');
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export const accountsController = new AccountsController();

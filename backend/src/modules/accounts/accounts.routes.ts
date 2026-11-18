@@ -12,6 +12,7 @@ router.get('/', accountsController.getAccounts);
 router.post('/', validateRequest({ body: createAccountSchema }), accountsController.createAccount);
 router.get('/:id', accountsController.getAccountById);
 router.patch('/:id', validateRequest({ body: updateAccountSchema }), accountsController.updateAccount);
+router.delete('/:id', accountsController.deleteAccount);
 
 export const accountsRoutes = router;
 

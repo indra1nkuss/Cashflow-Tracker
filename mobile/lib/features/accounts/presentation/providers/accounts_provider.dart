@@ -52,10 +52,47 @@ class AccountsNotifier extends AsyncNotifier<List<AccountModel>> {
       return false;
     }
   }
+
+  Future<bool> updateAccount({
+    required String accountId,
+    required String name,
+    required String accountType,
+    required double initialBalance,
+  }) async {
+    final repo = ref.read(accountsRepositoryProvider);
+    try {
+      final updated = await repo.updateAccount(
+        accountId: accountId,
+        name: name,
+        accountType: accountType,
+        initialBalance: initialBalance,
+      );
+      final current = state.value ?? [];
+      state = AsyncValue.data(
+        current.map((a) => a.id == accountId ? updated : a).toList(),
+      );
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<bool> deleteAccount(String accountId) async {
+    final repo = ref.read(accountsRepositoryProvider);
+    try {
+      await repo.deleteAccount(accountId);
+      final current = state.value ?? [];
+      state = AsyncValue.data(current.where((a) => a.id != accountId).toList());
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
 }
 
 final accountsNotifierProvider =
     AsyncNotifierProvider<AccountsNotifier, List<AccountModel>>(() {
   return AccountsNotifier();
 });
+
 
