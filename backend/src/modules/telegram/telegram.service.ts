@@ -91,7 +91,7 @@ export class TelegramService {
 
         await telegramBotService.sendMessage(
           msg.chat.id,
-          'âŒ <b>Kode tautan tidak valid atau sudah kedaluwarsa.</b>\n\nSilakan buat kode baru melalui menu <i>Pengaturan > Hubungkan Telegram</i> di aplikasi mobile Anda.'
+          '❌ <b>Kode tautan tidak valid atau sudah kedaluwarsa.</b>\n\nSilakan buat kode baru melalui menu <i>Pengaturan > Hubungkan Telegram</i> di aplikasi mobile Anda.'
         );
         await this.updateMessageStatus(chatId, messageId, 'LINK_CODE_EXPIRED');
         return;
@@ -103,7 +103,7 @@ export class TelegramService {
       });
 
       if (!user) {
-        await telegramBotService.sendMessage(msg.chat.id, 'âŒ User tidak ditemukan.');
+        await telegramBotService.sendMessage(msg.chat.id, '❌ <b>User tidak ditemukan.</b>');
         await this.updateMessageStatus(chatId, messageId, 'FAILED');
         return;
       }
@@ -133,12 +133,13 @@ export class TelegramService {
       await prisma.telegramLinkCode.delete({ where: { code: potentialCode } });
 
       const welcomeMsg =
-        `ðŸŽ‰ <b>Selamat, Akun Berhasil Ditautkan!</b>\n\n` +
+        `🎉 <b>Selamat, Akun Berhasil Ditautkan!</b>\n\n` +
         `Halo <b>${user.fullName}</b>, akun Telegram Anda kini terhubung dengan <b>Personal Finance Tracker</b>.\n\n` +
         `Sekarang Anda dapat mencatat keuangan dengan mengetik pesan biasa, contoh:\n` +
-        `â€¢ <i>"Membeli bensin Rp50.000"</i>\n` +
-        `â€¢ <i>"Makan siang 25rb"</i>\n` +
-        `â€¢ <i>"Diterima gaji Rp5.000.000"</i>`;
+        `• <i>"Beli bensin GoPay 40.000"</i>\n` +
+        `• <i>"Makan siang cash 25rb"</i>\n` +
+        `• <i>"Diterima gaji BNI 5.000.000"</i>\n\n` +
+        `Ketik <code>/help</code> untuk melihat daftar perintah bantuan.`;
 
       await telegramBotService.sendMessage(msg.chat.id, welcomeMsg);
       await this.updateMessageStatus(chatId, messageId, 'LINKED_SUCCESS');
@@ -154,8 +155,8 @@ export class TelegramService {
     if (!link || !link.isLinked) {
       await telegramBotService.sendMessage(
         msg.chat.id,
-        'âš ï¸ <b>Akun Telegram Anda belum ditautkan.</b>\n\n' +
-        'Silakan buka aplikasi mobile <b>Personal Finance Tracker</b>, buka menu <i>Pengaturan > Hubungkan Telegram</i>, lalu kirimkan kode tautan ke sini.\n\n' +
+        '⚠️ <b>Akun Telegram Anda belum ditautkan.</b>\n\n' +
+        'Silakan buka aplikasi <b>Personal Finance Tracker</b>, buka menu <i>Pengaturan > Hubungkan Telegram</i>, lalu kirimkan kode tautan ke sini.\n\n' +
         'Format: <code>/link PFT-XXXX</code>'
       );
       await this.updateMessageStatus(chatId, messageId, 'UNLINKED');
@@ -166,19 +167,19 @@ export class TelegramService {
     if (text === '/start' || text === '/help') {
       await telegramBotService.sendMessage(
         msg.chat.id,
-        `ðŸ‘‹ Halo, <b>${link.user.fullName}</b>!\n\n` +
+        `👋 Halo, <b>${link.user.fullName}</b>!\n\n` +
         `Kirimkan catatan pengeluaran atau pemasukan Anda secara langsung.\n` +
         `Contoh:\n` +
-        `â€¢ <i>"Membeli bensin Rp50.000"</i>\n` +
-        `â€¢ <i>"Makan siang di warteg 25rb"</i>\n` +
-        `â€¢ <i>"Diterima gaji Rp5.000.000"</i>\n\n` +
-        `Perintah bantuan:\n` +
-        `â€¢ <code>/laporan</code> - Laporan keuangan bulan ini\n` +
-        `â€¢ <code>/laporan hari</code> - Laporan keuangan hari ini\n` +
-        `â€¢ <code>/laporan minggu</code> - Laporan keuangan minggu ini\n` +
-        `â€¢ <code>/laporan tahun</code> - Laporan keuangan tahun ini\n` +
-        `â€¢ <code>/batal</code> - Membatalkan transaksi terakhir jika salah catat\n` +
-        `â€¢ <code>/status</code> - Melihat akun yang sedang terhubung`
+        `• <i>"Beli bensin GoPay 40.000"</i>\n` +
+        `• <i>"Makan siang tunai 25rb"</i>\n` +
+        `• <i>"Diterima gaji BNI 5.000.000"</i>\n\n` +
+        `<b>Perintah Laporan & Bantuan:</b>\n` +
+        `• <code>/laporan hari</code> — Laporan keuangan hari ini\n` +
+        `• <code>/laporan minggu</code> — Laporan keuangan minggu ini\n` +
+        `• <code>/laporan bulan</code> — Laporan keuangan bulan ini\n` +
+        `• <code>/laporan tahun</code> — Laporan keuangan tahun ini\n` +
+        `• <code>/batal</code> — Batalkan transaksi terakhir\n` +
+        `• <code>/status</code> — Cek status akun yang terhubung`
       );
       await this.updateMessageStatus(chatId, messageId, 'PROCESSED');
       return;
@@ -187,8 +188,10 @@ export class TelegramService {
     if (text === '/status') {
       await telegramBotService.sendMessage(
         msg.chat.id,
-        `â„¹ï¸ <b>Status Akun</b>\n\n` +
-        `Terhubung dengan: <b>${link.user.fullName}</b> (${link.user.email})`
+        `ℹ️ <b>Status Akun</b>\n\n` +
+        `👤 <b>Nama:</b> ${link.user.fullName}\n` +
+        `📧 <b>Email:</b> ${link.user.email}\n` +
+        `🟢 <b>Status:</b> Terhubung`
       );
       await this.updateMessageStatus(chatId, messageId, 'PROCESSED');
       return;
@@ -203,7 +206,7 @@ export class TelegramService {
       if (!lastTx) {
         await telegramBotService.sendMessage(
           msg.chat.id,
-          'â„¹ï¸ Tidak ada transaksi via Telegram yang dapat dibatalkan saat ini.'
+          'ℹ️ Tidak ada transaksi via Telegram yang dapat dibatalkan saat ini.'
         );
         await this.updateMessageStatus(chatId, messageId, 'PROCESSED');
         return;
@@ -221,10 +224,10 @@ export class TelegramService {
 
       await telegramBotService.sendMessage(
         msg.chat.id,
-        `ðŸ—‘ï¸ <b>Transaksi Terakhir Dibatalkan!</b>\n\n` +
-        `â€¢ <b>Keterangan:</b> ${lastTx.description}\n` +
-        `â€¢ <b>Nominal:</b> ${formattedAmount}\n\n` +
-        `Transaksi telah dihapus dari pencatatan keuangan Anda.`
+        `🗑️ <b>Transaksi Terakhir Dibatalkan!</b>\n\n` +
+        `• <b>Keterangan:</b> ${lastTx.description}\n` +
+        `• <b>Nominal:</b> ${formattedAmount}\n\n` +
+        `<i>Transaksi telah dihapus dari pencatatan keuangan Anda.</i>`
       );
       await this.updateMessageStatus(chatId, messageId, 'PROCESSED');
       return;
@@ -283,7 +286,7 @@ export class TelegramService {
     if (parsed.needsClarification || !parsed.amount || !parsed.type) {
       const clarifyText =
         parsed.clarificationMessage ||
-        'âš ï¸ Maaf, informasi transaksi belum lengkap (nominal wajib dicantumkan). Contoh: "Membeli bensin Rp50.000".';
+        '⚠️ <b>Informasi transaksi belum lengkap.</b>\nMohon sebutkan nominal transaksi dan nama akun/dompet.\nContoh:\n• <i>"Beli bensin GoPay 40rb"</i>\n• <i>"Diterima gaji BNI 5jt"</i>';
       await telegramBotService.sendMessage(msg.chat.id, clarifyText);
       await this.updateMessageStatus(chatId, messageId, 'NEED_CLARIFICATION');
       return;
@@ -325,14 +328,14 @@ export class TelegramService {
             initialBalance: new Decimal(0),
           },
         });
-        Logger.info(`Auto-created account: ` + mentionedAccount + ` (` + detectedType + `) for user ` + link.userId);
+        Logger.info(`Auto-created account: ${mentionedAccount} (${detectedType}) for user ${link.userId}`);
       }
     } else {
       // Tidak ada nama akun disebutkan -> tanya user
       const clarifyText =
         parsed.type === 'INCOME'
-          ? 'Diterima ke akun mana?\nContoh: "diterima gaji BNI 5jt" atau "terima transferan GoPay 200rb"'
-          : 'Dibayar dari akun mana?\nContoh: "beli bensin GoPay 50rb" atau "bayar listrik BCA 150rb"';
+          ? '❓ <b>Diterima ke akun mana?</b>\nContoh: <i>"diterima gaji BNI 5jt"</i> atau <i>"terima transferan GoPay 200rb"</i>'
+          : '❓ <b>Dibayar dari akun mana?</b>\nContoh: <i>"beli bensin GoPay 50rb"</i> atau <i>"bayar listrik BCA 150rb"</i>';
 
       await telegramBotService.sendMessage(msg.chat.id, clarifyText);
       await this.updateMessageStatus(chatId, messageId, 'NEED_CLARIFICATION');
@@ -378,13 +381,19 @@ export class TelegramService {
       maximumFractionDigits: 0,
     }).format(Number(transaction.amount));
 
+    const typeEmoji = transaction.type === 'INCOME' ? '🟢' : '🔴';
+    const typeLabel = transaction.type === 'INCOME' ? 'Pemasukan' : 'Pengeluaran';
+
     const reply =
-      `âœ… <b>Transaksi Berhasil Dicatat!</b>\n\n` +
-      `<b>Jenis:</b> ${transaction.type === 'INCOME' ? 'ðŸ“ˆ Pemasukan' : 'ðŸ“‰ Pengeluaran'}\n` +
-      `<b>Nominal:</b> ${formattedAmount}\n` +
-      `<b>Kategori:</b> ${category.name}\n` +
-      `<b>Deskripsi:</b> ${transaction.description}\n` +
-      `<b>Akun:</b> ${account.name}`;
+      `✅ <b>Transaksi Berhasil Dicatat!</b>\n` +
+      `────────────────────────────\n` +
+      `<b>Jenis:</b>        ${typeEmoji} ${typeLabel}\n` +
+      `<b>Nominal:</b>      <b>${formattedAmount}</b>\n` +
+      `<b>Kategori:</b>     ${category.name}\n` +
+      `<b>Deskripsi:</b>    ${transaction.description}\n` +
+      `<b>Akun / Dompet:</b> 💳 ${account.name}\n` +
+      `────────────────────────────\n` +
+      `<i>💡 Ketik /batal jika salah mencatat</i>`;
 
     await telegramBotService.sendMessage(msg.chat.id, reply);
     await this.updateMessageStatus(chatId, messageId, 'PROCESSED');
@@ -429,34 +438,55 @@ export class TelegramService {
         maximumFractionDigits: 0,
       }).format(num);
 
-    const netSign = report.netCashflow > 0 ? '+' : '';
-    const netEmoji = report.netCashflow >= 0 ? 'ðŸ“ˆ' : 'ðŸ“‰';
+    const makeRow = (left: string, right: string) => {
+      const col1 = 13;
+      const col2 = 14;
+      const l = left.padEnd(col1).slice(0, col1);
+      const r = right.padStart(col2).slice(0, col2);
+      return `│ ${l} │ ${r} │`;
+    };
 
-    let msg = `ðŸ“Š <b>LAPORAN KEUANGAN</b>\n`;
-    msg += `ðŸ—“ï¸ <b>Periode:</b> ${report.periodLabel}\n`;
-    msg += `ðŸ‘¤ <b>Pengguna:</b> ${userName}\n`;
-    msg += `â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€\n`;
-    msg += `ðŸ’° <b>Pemasukan:</b>  ${fmt(report.totalIncome)}\n`;
-    msg += `ðŸ’¸ <b>Pengeluaran:</b> ${fmt(report.totalExpense)}\n`;
-    msg += `${netEmoji} <b>Selisih (Net):</b> ${netSign}${fmt(report.netCashflow)}\n`;
-    msg += `ðŸ“ <b>Total Transaksi:</b> ${report.transactionCount} catatan\n`;
-    msg += `â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€\n`;
+    const netSign = report.netCashflow > 0 ? '+' : '';
+    const netFormatted = `${netSign}${fmt(report.netCashflow)}`;
+    const incomeFormatted = fmt(report.totalIncome);
+    const expenseFormatted = fmt(report.totalExpense);
+
+    const top = '┌' + '─'.repeat(15) + '┬' + '─'.repeat(16) + '┐';
+    const mid = '├' + '─'.repeat(15) + '┼' + '─'.repeat(16) + '┤';
+    const bot = '└' + '─'.repeat(15) + '┴' + '─'.repeat(16) + '┘';
+    const head = '│' + ' RINGKASAN ARUS KAS '.padStart(24).padEnd(32) + '│';
+
+    let msg = `📊 <b>LAPORAN KEUANGAN</b>\n`;
+    msg += `📅 <b>Periode:</b> ${report.periodLabel}\n`;
+    msg += `👤 <b>Pengguna:</b> ${userName}\n\n`;
+
+    msg += `<pre>\n`;
+    msg += `${top}\n`;
+    msg += `${head}\n`;
+    msg += `${mid}\n`;
+    msg += `${makeRow('Pemasukan', incomeFormatted)}\n`;
+    msg += `${makeRow('Pengeluaran', expenseFormatted)}\n`;
+    msg += `${mid}\n`;
+    msg += `${makeRow('Selisih (Net)', netFormatted)}\n`;
+    msg += `${bot}\n`;
+    msg += `</pre>\n`;
+    msg += `📝 <b>Total Transaksi:</b> ${report.transactionCount} catatan\n`;
 
     if (report.expenseCategories.length > 0) {
-      msg += `\nðŸ”´ <b>Rincian Pengeluaran:</b>\n`;
+      msg += `\n🔴 <b>Rincian Pengeluaran:</b>\n`;
       for (const cat of report.expenseCategories) {
         const pct =
           report.totalExpense > 0
             ? ((cat.total / report.totalExpense) * 100).toFixed(0)
             : '0';
-        msg += `â€¢ ${cat.name}: <b>${fmt(cat.total)}</b> (${pct}%)\n`;
+        msg += `• <b>${cat.name}:</b> ${fmt(cat.total)} <i>(${pct}%)</i>\n`;
       }
     }
 
     if (report.incomeCategories.length > 0) {
-      msg += `\nðŸŸ¢ <b>Rincian Pemasukan:</b>\n`;
+      msg += `\n🟢 <b>Rincian Pemasukan:</b>\n`;
       for (const cat of report.incomeCategories) {
-        msg += `â€¢ ${cat.name}: <b>${fmt(cat.total)}</b>\n`;
+        msg += `• <b>${cat.name}:</b> ${fmt(cat.total)}\n`;
       }
     }
 
@@ -464,16 +494,14 @@ export class TelegramService {
       msg += `\n<i>Belum ada transaksi tercatat pada periode ini.</i>\n`;
     }
 
-    msg += `\nðŸ’¡ <i>Pilihan perintah laporan:</i>\n`;
-    msg += `â€¢ <code>/laporan hari</code> (Hari Ini)\n`;
-    msg += `â€¢ <code>/laporan minggu</code> (Minggu Ini)\n`;
-    msg += `â€¢ <code>/laporan bulan</code> (Bulan Ini)\n`;
-    msg += `â€¢ <code>/laporan tahun</code> (Tahun Ini)\n`;
+    msg += `\n💡 <i>Pilihan perintah laporan:</i>\n`;
+    msg += `• <code>/laporan hari</code> (Hari Ini)\n`;
+    msg += `• <code>/laporan minggu</code> (Minggu Ini)\n`;
+    msg += `• <code>/laporan bulan</code> (Bulan Ini)\n`;
+    msg += `• <code>/laporan tahun</code> (Tahun Ini)\n`;
 
     return msg;
   }
 }
 
 export const telegramService = new TelegramService();
-
-
